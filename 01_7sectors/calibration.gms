@@ -49,7 +49,12 @@ LabS0(q,s)    	= LQ0(s,q) / SUM(g,PopQS0(q,s,g)*EPQ(g,q));
 Lab0(q,"e1")	= LabS0(q,"s1");
 Lab0(q,"e2")	= LabS0(q,"s2");
 Lab0(q,"e3")	= LabS0(q,"s3");
+Lab0(q,"e4")	= LabS0(q,"s4");
+Lab0(q,"e5")	= LabS0(q,"s5");
+Lab0(q,"e6")	= LabS0(q,"s6");
+Lab0(q,"e7")	= LabS0(q,"s7");
 DISPLAY Lab0;
+
 BeqR(g) 	= 0;
 InhR(g) 	= 0;
 rho0    	= 0.80;

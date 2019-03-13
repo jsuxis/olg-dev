@@ -25,10 +25,10 @@ FlQual		Flag (1) for Qualification Shock
 * --- Choose Flags
 
 FlWalras	=	0;
-FlDemog1	= 	1;
+FlDemog1	= 	0;
 FlDemog2     	= 	0;
 FlProdu     	= 	0;
-FlQual		=	0;
+FlQual		=	1;
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 * Equations
@@ -71,7 +71,15 @@ EQUATIONS
     WageEq3(s,q,t)      
     WageEq4(s,q,t)
     WageEq5(s,q,t)
-    WageEq6(s,q,t) 
+    WageEq6(s,q,t)
+    WageEq7(s,q,t)
+    Wage2Eq1(s,q,t)
+    Wage2Eq2(s,q,t)
+    Wage2Eq3(s,q,t)
+    Wage2Eq4(s,q,t)
+    Wage2Eq5(s,q,t)
+    Wage2Eq6(s,q,t)
+    Wage2Eq7(s,q,t)
     RentEq(t)           Capital Market Equilibrium
     AssetEq(t)          Asset Market Equilibrium
     GovGEq(t)		Government Spending Growth
@@ -309,25 +317,81 @@ WageEq3(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
 
 * Labor market equilibrium
 WageEq4(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e4",q,t)
+    =E=
+    LQ("s4",q,t)
+    ;
+
+* Labor market equilibrium
+WageEq5(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e5",q,t)
+    =E=
+    LQ("s5",q,t)
+    ;
+
+* Labor market equilibrium
+WageEq6(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e6",q,t)
+    =E=
+    LQ("s6",q,t)
+    ;
+
+* Labor market equilibrium
+WageEq7(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e7",q,t)
+    =E=
+    LQ("s7",q,t)
+    ;
+
+* Labor market equilibrium
+Wage2Eq1(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     wageE("e1",q,t)
     =E=
     wage("s1",q,t)
     ;
 
 * Labor market equilibrium
-WageEq5(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+Wage2Eq2(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     wageE("e2",q,t)
     =E=
     wage("s2",q,t)
     ;
 
 * Labor market equilibrium
-WageEq6(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+Wage2Eq3(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     wageE("e3",q,t)
     =E=
     wage("s3",q,t)
     ;
     
+* Labor market equilibrium
+Wage2Eq4(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e4",q,t)
+    =E=
+    wage("s4",q,t)
+    ;
+
+* Labor market equilibrium
+Wage2Eq5(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e5",q,t)
+    =E=
+    wage("s5",q,t)
+    ;
+
+* Labor market equilibrium
+Wage2Eq6(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e6",q,t)
+    =E=
+    wage("s6",q,t)
+    ;
+
+* Labor market equilibrium
+Wage2Eq7(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e7",q,t)
+    =E=
+    wage("s7",q,t)
+    ;
+        
 * Capital Market Equilibrium
 RentEq(t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     Ksc0*K(t)
@@ -380,7 +444,15 @@ MODEL OLG /
       WageEq3
       WageEq4
       WageEq5
-      WageEq6      
+      WageEq6
+      WageEq7
+      Wage2Eq1
+      Wage2Eq2
+      Wage2Eq3
+      Wage2Eq4
+      Wage2Eq5
+      Wage2Eq6
+      Wage2Eq7
       RentEq
       AssetEq
       ObjEq
@@ -388,7 +460,7 @@ MODEL OLG /
 ;
 
 * Treat fixed variables as constants
-OLG.WORKSPACE = 15;          
+OLG.WORKSPACE = 1000;          
 OLG.HOLDFIXED=1;
 
 

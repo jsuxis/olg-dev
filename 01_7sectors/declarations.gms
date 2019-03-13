@@ -26,13 +26,13 @@ SET
 
 * Sectors
 SET
-    s		Sectors		/s1*s3/
+    s		Sectors		/s1*s7/
 ;
 	ALIAS (S,SS),(SS,SSD),(S,SD);
 
 * Sectoral Employment / Sectoral Affiliation
 SET
-    e		Sectoral Employment	/e1*e3/
+    e		Sectoral Employment	/e1*e7/
 ;
 	ALIAS (e,ee);
 
