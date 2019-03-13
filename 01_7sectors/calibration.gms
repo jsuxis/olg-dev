@@ -18,7 +18,7 @@ $INCLUDE data.gms
 * Initializing
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SigInter	= 4;
+SigInter	= 7.5;
 SigIntra	= 6;
 sigCon(g)	= 2.5;
 sigInv		= 3;
@@ -28,8 +28,9 @@ sigX(s)		= 2.5;
 Rint0   	= 1.40;
 
 IF(CARD(g) EQ 3,
-    EP(g)       = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);
-    delta       = 0.60;
+	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
+	EP(gr)	= 0;
+	delta   = 0.60;
     );
 
 Leis0(gf,q,e)	= 0.35;
@@ -44,7 +45,7 @@ EPQ(g,"q1")	= EP(g)*1.2;
 EPQ(g,"q2")	= EP(g)*0.8;
 DISPLAY EPQ;
 
-LabS0(q,s)    	= LQ0(s,q) / SUM(g,PopQS0(q,s,g)*EPQ(g,q)*(1-LeisS0(g,q,s)));
+LabS0(q,s)    	= LQ0(s,q) / SUM(g,PopQS0(q,s,g)*EPQ(g,q));
 Lab0(q,"e1")	= LabS0(q,"s1");
 Lab0(q,"e2")	= LabS0(q,"s2");
 Lab0(q,"e3")	= LabS0(q,"s3");
@@ -53,7 +54,7 @@ BeqR(g) 	= 0;
 InhR(g) 	= 0;
 rho0    	= 0.80;
 AlDemQ(s,q)	= LQ0(s,q)/Ldem0(s);
-LsupEQ0(e,q)  	= SUM(g, PopQE0(q,e,g)*Lab0(q,e)*EPQ(g,q)*(1-Leis0(g,q,e)));
+LsupEQ0(e,q)  	= SUM(g, PopQE0(q,e,g)*Lab0(q,e)*EPQ(g,q));
 Lsup0		= SUM((e,q),LsupEQ0(e,q));
 
 
@@ -81,10 +82,8 @@ DIFFC0		= C0 - SUM((g,q,e),PopQE0(q,e,g)*Con0(g,q,e));
 EQUATIONS
     HBudg0Eq1(g,q,e)    HH Budget Constraint
     HBudg0Eq2(g,q,e)    HH Budget Constraint last generation
-    GammaEq(g,q,e)	Consumption intensity parameter calibration    
     Beq0Eq(g,q,e)       Bequests
     Inh0Eq(g,q,e)       Inheritances
-    VV0vEq(g,q,e)	Definition of V
     Con0Eq(g,q,e)       Intertemporal Consumption (Euler Equation)
     C0Eq                Aggregate Consumption
     Rint0VEq            Balance of interest and rental rates
@@ -97,22 +96,16 @@ EQUATIONS
 HBudg0Eq1(g+1,q,e)..
     (1+CTxR0)*Con0v(g,q,e) + B0v(g+1,q,e)
     =E=
-    (1-WTxR0)*Lab0(q,e)*EPQ(g,q)*(1-Leis0(g,q,e)) + ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1) + Inh0v(g,q,e) - Beq0v(g,q,e)
+    (1-WTxR0)*Lab0(q,e)*EPQ(g,q) + ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1) + Inh0v(g,q,e) - Beq0v(g,q,e)
     ;
 
 * HH Budget Constraint last generation
 HBudg0Eq2(gl,q,e)..
     (1+CTxR0)*Con0v(gl,q,e)
     =E=
-    (1-WTxR0)*Lab0(q,e)*EPQ(gl,q)*(1-Leis0(gl,q,e)) + (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) + Inh0v(gl,q,e) - Beq0v(gl,q,e)
+    (1-WTxR0)*Lab0(q,e)*EPQ(gl,q) + (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) + Inh0v(gl,q,e) - Beq0v(gl,q,e)
     ;
 
-* Consumption intensity parameter calibration
-GammaEq(g,q,e)..
-    Gammav(g,q,e)
-    =E=
-    ((1-WTxR0)*Lab0(q,e)*EPQ(g,q)) * ((Leis0(g,q,e)/Con0v(g,q,e))**(1/SigIntra))
-    ;
 
 * Bequests
 Beq0Eq(gl,q,e)..
@@ -132,17 +125,9 @@ Inh0Eq(gw,q,e)..
 Con0Eq(g+1,q,e)..
     Con0v(g+1,q,e)/Con0v(g,q,e)
     =E=
-    ((Rint0v-KTxR0*(Rint0v-1))/rho0v)**SigInter * (VV0v(g+1,q,e)/VV0v(g,q,e))
+    ((Rint0v-KTxR0*(Rint0v-1))/rho0v)**SigInter 
     ;
     
-* Definition of V
-VV0vEq(g,q,e)..
-    VV0v(g,q,e)
-    =E=
-    (1+ (gammav(g,q,e)**SigIntra) * (((1-WTxR0)*Lab0(q,e)*EPQ(g,q))**(1-SigIntra)))
-    **((SigIntra-SigInter)/(1-SigIntra))
-    ;
-
 * Aggregate Consumption
 C0Eq..
     SUM((g,q,e), PopQE0(q,e,g)*Con0v(g,q,e))
@@ -166,7 +151,7 @@ Asset0Eq..
 
 * Government Budget Balance
 GBudg0Eq..
-    Gpop0*Bond0v + SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,e)*EPQ(g,q)*(1-Leis0(g,q,e))+CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e)))
+    Gpop0*Bond0v + SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,e)*EPQ(g,q)+CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e)))
     =E=
     G0 + Rint0v*Bond0v
     ;
@@ -185,10 +170,8 @@ ObjEq..
 MODEL OLG0 /
       HBudg0Eq1
       HBudg0Eq2
-      GammaEq
       Beq0Eq
       Inh0Eq
-      VV0vEq
       Con0Eq
       C0Eq
       Rint0vEq
