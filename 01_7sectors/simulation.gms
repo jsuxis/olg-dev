@@ -1,15 +1,7 @@
-* =================================================================================
-* October 2017   --- Simple Overlapping Generations Model ---
-*
-* This version
-*        - 3 generations
-*        - 1 region
-*        - 1 sector (S)
-*        - 2 factors of production (capital and labour)
-*        - Dynamics vs steady state effects
-
+* ========================================================
+* 7 Sectors
 * Simulation file
-* =================================================================================
+* ========================================================
 
 $INCLUDE calibration.gms
 $OFFSYMXREF OFFSYMLIST OFFUELLIST OFFUELXREF
@@ -24,11 +16,11 @@ FlQual		Flag (1) for Qualification Shock
 
 * --- Choose Flags
 
-FlWalras	=	0;
-FlDemog1	= 	0;
+FlWalras	=	1;
+FlDemog1	= 	1;
 FlDemog2     	= 	0;
 FlProdu     	= 	0;
-FlQual		=	1;
+FlQual		=	0;
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 * Equations
@@ -118,16 +110,19 @@ XdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
 HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
     PCon(q,e,t,g)*(1+CTxR(t))*Con(q,e,t,g) + B(q,e,t+1,g+1)
     =E=
-    (1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q) + ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,g))$(ORD(g) GT 1) + Inh(q,e,t,g) - Beq(q,e,t,g)
+    ((1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q))+
+    ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,g))$(ORD(g) GT 1) +
+    Inh(q,e,t,g) - Beq(q,e,t,g)
     ;
 
 * HH Budget Constraint last generation
 HBudgEq2(q,e,t,gl)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     PCon(q,e,t,gl)*(1+CTxR(t))*Con(q,e,t,gl)
     =E=
-    (1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(gl,q) + ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,gl)) + Inh(q,e,t,gl) - Beq(q,e,t,gl)
+    ((1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(gl,q)) +
+    ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,gl)) +
+    Inh(q,e,t,gl) - Beq(q,e,t,gl)
     ;
-
 * Bequests
 BeqEq(q,e,t,g)      $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm) AND BeqR(g) NE 0)..
     Beq(q,e,t,g)
@@ -146,7 +141,7 @@ InhEq(q,e,t,g)     $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm) AND InhR
 ConEq(q,e,t+1,g+1)  $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)-1)..
     Con(q,e,t+1,g+1)/Con(q,e,t,g)
     =E=
-    (((Rint(t+1)-KTxR(t+1)*(Rint(t+1)-1))*PCon(q,e,t,g) / (rho*PCon(q,e,t+1,g+1)))*((1+CTxR(t))/(1+CTxR(t+1))))**SigInter 
+    ((((Rint(t+1)-KTxR(t+1)*(Rint(t+1)-1))*PCon(q,e,t,g) / (rho*PCon(q,e,t+1,g+1)))*((1+CTxR(t))/(1+CTxR(t+1))))**SigInter)
     ;
 
 * Steady State Consumption Profile
@@ -220,7 +215,7 @@ XdemSEq(s,ss,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)
 LsupEq(e,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LsupQE(e,q,t)
     =E=
-    SUM(g, PopQE(q,e,t,g)*Lab(q,e,t)*EPQ(g,q))
+    (SUM(g, PopQE(q,e,t,g)*Lab(q,e,t)*EPQ(g,q)))
     ;
 
 * Balance of interest and rental rates
@@ -246,20 +241,20 @@ KstockEqSS(t)   $((ORD(t) EQ CARD(tp)+CARD(tm)))..
 
 * Government Budget Constraint 1
 GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
-    PGov(t)*Bond(t+1)+SUM((q,e,g),PopQE(q,e,t,g)*(
+    PGov(t)*Bond(t+1)+(SUM((q,e,g),PopQE(q,e,t,g)*(
       WTxR(t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
-    + KTxR(t)*(Rint(t)-1)*B(q,e,t,g)))
+    + KTxR(t)*(Rint(t)-1)*B(q,e,t,g)))) 
     =E=
     PGov(t)*Gov(t)+(Rint(t-1)*(PGov(t)/PGov(t-1)))*PGov(t-1)*Bond(t)
     ;
 
 * Government Budget in Steady State
 GBudgEqSS(t)	$(ORD(t) EQ CARD(tp)+CARD(tm))..
-    GPop(t)*PGov(t)*Bond(t)+SUM((q,e,g),PopQE(q,e,t,g)*(
+    GPop(t)*PGov(t)*Bond(t)+(SUM((q,e,g),PopQE(q,e,t,g)*(
       WTxR(t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
-    + KTxR(t)*(Rint(t)-1)*B(q,e,t,g)))
+    + KTxR(t)*(Rint(t)-1)*B(q,e,t,g))))
     =E=
     PGov(t)*Gov(t)+Rint(t-1)*PGov(t)*Bond(t)
     ;
@@ -611,7 +606,7 @@ EXECUTE '=gdx2xls results_base.gdx'
 
 IF(FlDemog1 EQ 1,
 NN(q,e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+4))
-                                =       1.03*NN(q,e,t);
+                                =       1.01*NN(q,e,t);
 
 LOOP(t $(ORD(t) GT CARD(tp)),
     PopQE(q,e,t+1,gf)           =       NN(q,e,t)*PopQE(q,e,t,gf)

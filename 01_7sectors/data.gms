@@ -1,16 +1,7 @@
-
-* =================================================================================
-* October 2017   --- Simple Overlapping Generations Model ---
-*
-* This version
-*        - 3 generations
-*        - 1 region
-*        - 1 sector (S)
-*        - 2 factors of production (capital and labour)
-*        - Dynamics vs steady state effects
-
-* Data file
-* =================================================================================
+* ========================================================
+* 7 Sectors
+* Data File
+* ========================================================
 
 $INCLUDE declarations.gms
 
@@ -131,7 +122,14 @@ TPop0   		= 150;
 TPopQ0("q1")		= TPop0*0.4;
 TPopQ0("q2")		= Tpop0*0.6;
 * Assuming all sector-populations are the same size, can be adjusted in the final model:
-TPopQE0(q,e)		= TpopQ0(q)/CARD(e);
+*TPopQE0(q,e)		= TpopQ0(q)/CARD(e);
+TPopQE0(q,"e1")		= Ldem0("s1")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e2")		= Ldem0("s2")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e3")		= Ldem0("s3")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e4")		= Ldem0("s4")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e5")		= Ldem0("s5")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e6")		= Ldem0("s6")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e7")		= Ldem0("s7")/SUM(s, Ldem0(s))*TPopQ0(q);
 Gpop0   		= 1;
 Pop0(g) 		= Tpop0/CARD(g);
 PopQ0(g,q)		= TPopQ0(q)/CARD(g);

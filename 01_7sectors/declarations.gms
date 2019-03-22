@@ -1,15 +1,7 @@
-* =================================================================================
-* October 2017   --- Simple Overlapping Generations Model ---
-*
-* This version
-*        - 3 generations
-*        - 1 region
-*        - 1 sector (S)
-*        - 2 factors of production (capital and labour)
-*        - Dynamics vs steady state effects
-
-* Declarations
-* =================================================================================
+* ========================================================
+* 7 Sectors
+* Declarations File
+* ========================================================
 
 * Generations
 SET

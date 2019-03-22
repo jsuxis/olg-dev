@@ -1,16 +1,7 @@
-
-* =================================================================================
-* October 2017   --- Simple Overlapping Generations Model ---
-*
-* This version
-*        - 3 generations
-*        - 1 region
-*        - 1 sector (S)
-*        - 2 factors of production (capital and labour)
-*        - Dynamics vs steady state effects
-
+* ======================================================
+* 7 Sectors
 * Calibration file
-* =================================================================================
+* ======================================================
 
 $INCLUDE data.gms
 
@@ -18,7 +9,14 @@ $INCLUDE data.gms
 * Initializing
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SigInter	= 7.5;
+* Flag for Endogenous Labor Supply
+PARAMETER
+FlEndo		Flag (0) Exogenous (1) Endogenous Labor Supply
+;
+
+
+* Model Parameters
+SigInter	= 4;
 SigIntra	= 6;
 sigCon(g)	= 2.5;
 sigInv		= 3;
@@ -29,7 +27,7 @@ Rint0   	= 1.40;
 
 IF(CARD(g) EQ 3,
 	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
-	EP(gr)	= 0;
+	EP(gr)  = 0;
 	delta   = 0.60;
     );
 
@@ -39,13 +37,18 @@ Leis0("g3",q,e)	= 0.90;
 LeisS0(g,q,"s1")=Leis0(g,q,"e1");
 LeisS0(g,q,"s2")=Leis0(g,q,"e2");
 LeisS0(g,q,"s3")=Leis0(g,q,"e3");
+LeisS0(g,q,"s4")=Leis0(g,q,"e4");
+LeisS0(g,q,"s5")=Leis0(g,q,"e5");
+LeisS0(g,q,"s6")=Leis0(g,q,"e6");
+LeisS0(g,q,"s7")=Leis0(g,q,"e7");
 
 * Specifying Earnings Profiles for each qualification 
 EPQ(g,"q1")	= EP(g)*1.2;
 EPQ(g,"q2")	= EP(g)*0.8;
 DISPLAY EPQ;
 
-LabS0(q,s)    	= LQ0(s,q) / SUM(g,PopQS0(q,s,g)*EPQ(g,q));
+LabS0(q,s)   =	(LQ0(s,q) / SUM(g,PopQS0(q,s,g)*EPQ(g,q)));
+
 Lab0(q,"e1")	= LabS0(q,"s1");
 Lab0(q,"e2")	= LabS0(q,"s2");
 Lab0(q,"e3")	= LabS0(q,"s3");
@@ -59,7 +62,8 @@ BeqR(g) 	= 0;
 InhR(g) 	= 0;
 rho0    	= 0.80;
 AlDemQ(s,q)	= LQ0(s,q)/Ldem0(s);
-LsupEQ0(e,q)  	= SUM(g, PopQE0(q,e,g)*Lab0(q,e)*EPQ(g,q));
+LsupEQ0(e,q) = 	(SUM(g, PopQE0(q,e,g)*Lab0(q,e)*EPQ(g,q)));
+;
 Lsup0		= SUM((e,q),LsupEQ0(e,q));
 
 
@@ -87,8 +91,10 @@ DIFFC0		= C0 - SUM((g,q,e),PopQE0(q,e,g)*Con0(g,q,e));
 EQUATIONS
     HBudg0Eq1(g,q,e)    HH Budget Constraint
     HBudg0Eq2(g,q,e)    HH Budget Constraint last generation
+    GammaEq(g,q,e)	Consumption intensity parameter calibration 
     Beq0Eq(g,q,e)       Bequests
     Inh0Eq(g,q,e)       Inheritances
+    VV0vEq(g,q,e)	Definition of V	
     Con0Eq(g,q,e)       Intertemporal Consumption (Euler Equation)
     C0Eq                Aggregate Consumption
     Rint0VEq            Balance of interest and rental rates
@@ -101,16 +107,19 @@ EQUATIONS
 HBudg0Eq1(g+1,q,e)..
     (1+CTxR0)*Con0v(g,q,e) + B0v(g+1,q,e)
     =E=
-    (1-WTxR0)*Lab0(q,e)*EPQ(g,q) + ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1) + Inh0v(g,q,e) - Beq0v(g,q,e)
+    ((1-WTxR0)*Lab0(q,e)*EPQ(g,q)) +
+    ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1)
+    + Inh0v(g,q,e) - Beq0v(g,q,e)
     ;
 
 * HH Budget Constraint last generation
 HBudg0Eq2(gl,q,e)..
     (1+CTxR0)*Con0v(gl,q,e)
     =E=
-    (1-WTxR0)*Lab0(q,e)*EPQ(gl,q) + (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) + Inh0v(gl,q,e) - Beq0v(gl,q,e)
+    (1-WTxR0)*Lab0(q,e)*EPQ(gl,q) +
+    (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) +
+    Inh0v(gl,q,e) - Beq0v(gl,q,e)
     ;
-
 
 * Bequests
 Beq0Eq(gl,q,e)..
@@ -132,7 +141,7 @@ Con0Eq(g+1,q,e)..
     =E=
     ((Rint0v-KTxR0*(Rint0v-1))/rho0v)**SigInter 
     ;
-    
+
 * Aggregate Consumption
 C0Eq..
     SUM((g,q,e), PopQE0(q,e,g)*Con0v(g,q,e))
@@ -156,7 +165,9 @@ Asset0Eq..
 
 * Government Budget Balance
 GBudg0Eq..
-    Gpop0*Bond0v + SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,e)*EPQ(g,q)+CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e)))
+    Gpop0*Bond0v +
+    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,e)*EPQ(g,q)+
+    CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e))))
     =E=
     G0 + Rint0v*Bond0v
     ;
