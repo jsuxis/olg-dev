@@ -65,6 +65,7 @@ EQUATIONS
     WageEq5(s,q,t)
     WageEq6(s,q,t)
     WageEq7(s,q,t)
+    WageEq8(s,q,t)
     Wage2Eq1(s,q,t)
     Wage2Eq2(s,q,t)
     Wage2Eq3(s,q,t)
@@ -72,6 +73,7 @@ EQUATIONS
     Wage2Eq5(s,q,t)
     Wage2Eq6(s,q,t)
     Wage2Eq7(s,q,t)
+    Wage2Eq8(s,q,t)
     RentEq(t)           Capital Market Equilibrium
     AssetEq(t)          Asset Market Equilibrium
     GovGEq(t)		Government Spending Growth
@@ -110,7 +112,7 @@ XdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
 HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
     PCon(q,e,t,g)*(1+CTxR(t))*Con(q,e,t,g) + B(q,e,t+1,g+1)
     =E=
-    ((1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q))+
+    ((1-WTxR(q,t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q))+
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,g))$(ORD(g) GT 1) +
     Inh(q,e,t,g) - Beq(q,e,t,g)
     ;
@@ -119,7 +121,7 @@ HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
 HBudgEq2(q,e,t,gl)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     PCon(q,e,t,gl)*(1+CTxR(t))*Con(q,e,t,gl)
     =E=
-    ((1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(gl,q)) +
+    ((1-WTxR(q,t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(gl,q)) +
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,gl)) +
     Inh(q,e,t,gl) - Beq(q,e,t,gl)
     ;
@@ -242,7 +244,7 @@ KstockEqSS(t)   $((ORD(t) EQ CARD(tp)+CARD(tm)))..
 * Government Budget Constraint 1
 GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
     PGov(t)*Bond(t+1)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
+      WTxR(q,t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g)))) 
     =E=
@@ -252,7 +254,7 @@ GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
 * Government Budget in Steady State
 GBudgEqSS(t)	$(ORD(t) EQ CARD(tp)+CARD(tm))..
     GPop(t)*PGov(t)*Bond(t)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
+      WTxR(q,t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g))))
     =E=
@@ -339,6 +341,13 @@ WageEq7(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     ;
 
 * Labor market equilibrium
+WageEq8(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e8",q,t)
+    =E=
+    LQ("s8",q,t)
+    ;
+
+* Labor market equilibrium
 Wage2Eq1(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     wageE("e1",q,t)
     =E=
@@ -386,7 +395,14 @@ Wage2Eq7(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     =E=
     wage("s7",q,t)
     ;
-        
+
+* Labor market equilibrium
+Wage2Eq8(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e8",q,t)
+    =E=
+    wage("s8",q,t)
+    ;
+
 * Capital Market Equilibrium
 RentEq(t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     Ksc0*K(t)
@@ -441,6 +457,7 @@ MODEL OLG /
       WageEq5
       WageEq6
       WageEq7
+      WageEq8
       Wage2Eq1
       Wage2Eq2
       Wage2Eq3
@@ -448,6 +465,7 @@ MODEL OLG /
       Wage2Eq5
       Wage2Eq6
       Wage2Eq7
+      Wage2Eq8
       RentEq
       AssetEq
       ObjEq
@@ -498,14 +516,16 @@ KTxR(t)		=	KTxR0;
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Y.L(s,t)        	=       Y0(s);
 Y.FX(s,tp)		=	Y0(s);
-Y.LO(s,t)		=	0;
+Y.LO(s,t)		=	1.E-13;
 P.L(s,t)		=	1;
 P.FX("s1",t)		=	1;
 P.FX(s,tp)		=	1;
 Kdem.L(s,t)     	=       Kdem0(s);
 Kdem.FX(s,tp)		=	Kdem0(s);
+Kdem.LO(s,t)		=	1.E-13;
 Ldem.L(s,t)     	=       Ldem0(s);
 Ldem.FX(s,tp)		=	Ldem0(s);
+Ldem.LO(s,t)		=	1.E-13;
 LQ.L(s,q,t)		=	LQ0(s,q);
 LQ.FX(s,q,tp)		=	LQ0(s,q);
 B.L(q,e,t,g)      	=       B0(g,q,e);
@@ -543,6 +563,7 @@ GovS.L(s,t)		=	GS0(s);
 GovS.FX(s,tp)		=	GS0(s);
 IS.L(s,t)		=	IS0(s);
 IS.FX(s,tp)		=	IS0(s);
+IS.LO(s,t)		=	0;
 K.L(t)          	=       K0;
 K.LO(t)			=	0;		
 K.FX(tmf)       	=       K0;
@@ -563,8 +584,8 @@ LsupQE.FX(e,q,tp)	=	LsupEQ0(e,q);
 Bond.L(t)		=	Bond0;
 Bond.FX(tp)		=	Bond0;
 Bond.FX(tmf)		=	Bond0;
-WTxR.L(t)		=	WTxR0;
-WTxR.FX(tp)		=	WTxR0;
+WTxR.L(q,t)		=	WTxR0(q);
+WTxR.FX(q,tp)		=	WTxR0(q);
 Input.L(s,ss,t)		=	Input0(s,ss);
 Input.FX(s,ss,tp)	=	Input0(s,ss);
 Input.LO(s,ss,t)	=	0;
@@ -573,6 +594,7 @@ PX.FX(s,tp)		=	1;
 PX.LO(s,t)		=	0;
 Xdem.L(s,t)		=	X0(s);
 Xdem.FX(s,tp)		=	X0(s);
+Xdem.LO(s,t)		=	1.E-13;
 Obj.FX          	=       0;
 
 
@@ -592,7 +614,7 @@ OPTION NLP=CONOPT;
 SOLVE OLG MAXIMIZING OBJ USING NLP;
 
 EXECUTE_UNLOAD 'results_base.gdx'
-EXECUTE '=gdx2xls results_base.gdx'
+*EXECUTE '=gdx2xls results_base.gdx'
 ;
 
 
@@ -631,7 +653,7 @@ SOLVE OLG MAXIMIZING OBJ USING NLP;
 *CS(s,t) = SUM(g,Pop(t,g)*ConS.L(s,t,g));
 
 EXECUTE_UNLOAD 'results_dem1.gdx'
-EXECUTE '=gdx2xls results_dem1.gdx'
+*EXECUTE '=gdx2xls results_dem1.gdx'
 );
 
 IF(FlDemog2 EQ 1,
@@ -660,7 +682,7 @@ OPTION NLP=CONOPT;
 SOLVE OLG MAXIMIZING OBJ USING NLP;
 
 EXECUTE_UNLOAD 'results_dem2.gdx'
-EXECUTE '=gdx2xls results_dem2.gdx'
+*EXECUTE '=gdx2xls results_dem2.gdx'
 );
 
 * Prductivity Shock
@@ -671,7 +693,7 @@ IF(FlProdu EQ 1,
 
 *    CS(s,t) = SUM(g,Pop(t,g)*ConS.L(s,t,g));
     EXECUTE_UNLOAD 'results_prod.gdx'
-	EXECUTE '=gdx2xls results_prod.gdx'
+*	EXECUTE '=gdx2xls results_prod.gdx'
 
 );
 
@@ -701,5 +723,5 @@ OPTION NLP=CONOPT;
 SOLVE OLG MAXIMIZING OBJ USING NLP;
 
 EXECUTE_UNLOAD 'results_qual.gdx'
-EXECUTE '=gdx2xls results_qual.gdx'
+*EXECUTE '=gdx2xls results_qual.gdx'
 );

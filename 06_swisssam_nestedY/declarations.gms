@@ -103,11 +103,11 @@ PARAMETER
     EPQ(g,q)		Earnings Profile for each qualification
     Leis0(g,q,e)	Initial Leisure
     LeisS0(g,q,s)	Initial Leisure
-    Lab0(q,e)        	Initial Physical (non-effective) Labor Supply (hours)
-    LabS0(q,s)		Sectoral Initial Physical (non-effective) Labor Supply (hours)
+    Lab0(q,g,e)        	Initial Physical (non-effective) Labor Supply (hours)
+    LabS0(q,s,g)	Sectoral Initial Physical (non-effective) Labor Supply (hours)
     Lsup0       	Initial Labor Supply
     LsupQ0(q)		Initial Labor Supply by qualification
-    LsupEQ0(e,q) 	Initial Labor Supply by qualification and sector
+    LsupEQ0(e,q,g) 	Initial Labor Supply by qualification and sector
     delta       	Depreciation Rate
     K0          	Initial Capital Stock
     Rent0       	Initial Rental Rate of Capital
@@ -167,7 +167,7 @@ PARAMETER
     TPop(t)             Total Population
     Pop(t,g)            Population by Generation
     PopQE(q,e,t,g)	Household size by Generation
-    Lab(q,e,t)        Physical (non-effective) Labor Supply (hours)
+    Lab(q,g,e,t)        Physical (non-effective) Labor Supply (hours)
     rho			Discount Rate
     rhoGen(t,g)         Generation Specific Discount Rate
     RkG(g)              ???
@@ -203,7 +203,7 @@ VARIABLE
     Leis(q,e,t,g)	Leisure
     VV(q,e,t,g)		V
     mu(q,e,t,g)		Mu
-    LsupQE(e,q,t)    	Labor Supply by sector and qualification
+    LsupQE(e,q,g,t)    	Labor Supply by sector and qualification
     I(t)        	Investments
     PI(t)		Price of Investment Good
     IS(s,t)		Investment using goods produced by sector s

@@ -16,7 +16,7 @@ FlEndo		Flag (0) Exogenous (1) Endogenous Labor Supply
 
 
 * Model Parameters
-SigInter	= 4;
+SigInter	= 6;
 SigIntra	= 6;
 sigCon(g)	= 2.5;
 sigInv		= 3;
@@ -25,10 +25,10 @@ SigGov		= 2.5;
 sigX(s)		= 2.5;
 Rint0   	= 1.40;
 
-IF(CARD(g) EQ 3,
+IF(CARD(g) EQ 4,
 	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
 	EP(gr)  = 0;
-	delta   = 0.60;
+	delta   = 0.8;
     );
 
 Leis0(gf,q,e)	= 0.35;
@@ -41,6 +41,7 @@ LeisS0(g,q,"s4")=Leis0(g,q,"e4");
 LeisS0(g,q,"s5")=Leis0(g,q,"e5");
 LeisS0(g,q,"s6")=Leis0(g,q,"e6");
 LeisS0(g,q,"s7")=Leis0(g,q,"e7");
+
 
 * Specifying Earnings Profiles for each qualification 
 EPQ(g,"q1")	= EP(g)*1.2;
@@ -56,6 +57,7 @@ Lab0(q,"e4")	= LabS0(q,"s4");
 Lab0(q,"e5")	= LabS0(q,"s5");
 Lab0(q,"e6")	= LabS0(q,"s6");
 Lab0(q,"e7")	= LabS0(q,"s7");
+Lab0(q,"e8")	= LabS0(q,"s8");
 DISPLAY Lab0;
 
 BeqR(g) 	= 0;
@@ -107,7 +109,7 @@ EQUATIONS
 HBudg0Eq1(g+1,q,e)..
     (1+CTxR0)*Con0v(g,q,e) + B0v(g+1,q,e)
     =E=
-    ((1-WTxR0)*Lab0(q,e)*EPQ(g,q)) +
+    ((1-WTxR0(q))*Lab0(q,e)*EPQ(g,q)) +
     ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1)
     + Inh0v(g,q,e) - Beq0v(g,q,e)
     ;
@@ -116,7 +118,7 @@ HBudg0Eq1(g+1,q,e)..
 HBudg0Eq2(gl,q,e)..
     (1+CTxR0)*Con0v(gl,q,e)
     =E=
-    (1-WTxR0)*Lab0(q,e)*EPQ(gl,q) +
+    (1-WTxR0(q))*Lab0(q,e)*EPQ(gl,q) +
     (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) +
     Inh0v(gl,q,e) - Beq0v(gl,q,e)
     ;
@@ -166,7 +168,7 @@ Asset0Eq..
 * Government Budget Balance
 GBudg0Eq..
     Gpop0*Bond0v +
-    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,e)*EPQ(g,q)+
+    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0(q)*Lab0(q,e)*EPQ(g,q)+
     CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e))))
     =E=
     G0 + Rint0v*Bond0v
@@ -231,7 +233,7 @@ Bond0v.L	=	Bond0;
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 OPTION DECIMALS = 6;
-OPTIONS SOLPRINT=ON, LIMROW=0, LIMCOL=0, ITERLIM=100;
+OPTIONS SOLPRINT=ON, LIMROW=0, LIMCOL=0, ITERLIM=1000;
 OPTION NLP=CONOPT;
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -350,4 +352,4 @@ DISPLAY AlConS;
 
 EXECUTE_UNLOAD 'calibration.gdx';
 
-EXECUTE '=gdx2xls calibration.gdx';
+*EXECUTE '=gdx2xls calibration.gdx';
