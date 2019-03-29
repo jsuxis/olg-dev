@@ -17,7 +17,7 @@ FlQual		Flag (1) for Qualification Shock
 
 * --- Choose Flags
 
-FlWalras	=	1;
+FlWalras	=	0;
 FlDemog1	= 	0;
 FlDemog2     	= 	0;
 FlProdu     	= 	1;
@@ -68,6 +68,7 @@ EQUATIONS
     WageEq5(s,q,g,t)
     WageEq6(s,q,g,t)
     WageEq7(s,q,g,t)
+    WageEq8(s,q,g,t)	
     Wage2Eq1(s,q,g,t)
     Wage2Eq2(s,q,g,t)
     Wage2Eq3(s,q,g,t)
@@ -75,6 +76,7 @@ EQUATIONS
     Wage2Eq5(s,q,g,t)
     Wage2Eq6(s,q,g,t)
     Wage2Eq7(s,q,g,t)
+    Wage2Eq8(s,q,g,t)
     RentEq(t)           Capital Market Equilibrium
     AssetEq(t)          Asset Market Equilibrium
     GovGEq(t)		Government Spending Growth
@@ -85,7 +87,7 @@ EQUATIONS
 QEq(s,t)        $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LOG(Y(s,t))
     =E=
-    LOG(A(s,t)) + AlK(s)*LOG(Kdem(s,t)) + AlX(s)*LOG(Xdem(s,t)) + (1-AlK(s)-AlX(s))*LOG(Ldem(s,t)) 
+    LOG(A(s,t)) + AlK(s)*LOG(Kdem(s,t)) + AlX(s)*LOG(Xdem(s,t)) + (1-AlK(s)-AlX(s))*LOG(Ldem(s,t))
     ;
 
 * Capital Demand (FOC1)
@@ -113,7 +115,7 @@ XdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
 HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
     PCon(q,e,t,g)*(1+CTxR(t))*Con(q,e,t,g) + B(q,e,t+1,g+1)
     =E=
-    ((1-WTxR(t))*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q))+
+    ((1-WTxR(q,t))*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q))+
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,g))$(ORD(g) GT 1) +
     Inh(q,e,t,g) - Beq(q,e,t,g)
     ;
@@ -122,7 +124,7 @@ HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
 HBudgEq2(q,e,t,gl)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     PCon(q,e,t,gl)*(1+CTxR(t))*Con(q,e,t,gl)
     =E=
-    ((1-WTxR(t))*wageAE(e,q,gl,t)*Lab(q,gl,e,t)*EPQ(gl,q)) +
+    ((1-WTxR(q,t))*wageAE(e,q,gl,t)*Lab(q,gl,e,t)*EPQ(gl,q)) +
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,gl)) +
     Inh(q,e,t,gl) - Beq(q,e,t,gl)
     ;
@@ -259,7 +261,7 @@ KstockEqSS(t)   $((ORD(t) EQ CARD(tp)+CARD(tm)))..
 * Government Budget Constraint 1
 GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
     PGov(t)*Bond(t+1)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
+      WTxR(q,t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g)))) 
     =E=
@@ -269,7 +271,7 @@ GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
 * Government Budget in Steady State
 GBudgEqSS(t)	$(ORD(t) EQ CARD(tp)+CARD(tm))..
     GPop(t)*PGov(t)*Bond(t)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
+      WTxR(q,t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g))))
     =E=
@@ -356,6 +358,13 @@ WageEq7(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     ;
 
 * Labor market equilibrium
+WageEq8(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e8",q,g,t)
+    =E=
+    LQA("s8",q,g,t)
+    ;
+
+* Labor market equilibrium
 Wage2Eq1(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     wageAE("e1",q,g,t)
     =E=
@@ -403,7 +412,14 @@ Wage2Eq7(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     =E=
     wageA("s7",q,g,t)
     ;
-        
+
+* Labor market equilibrium
+Wage2Eq8(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageAE("e8",q,g,t)
+    =E=
+    wageA("s8",q,g,t)
+    ;
+    
 * Capital Market Equilibrium
 RentEq(t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     Ksc0*K(t)
@@ -460,6 +476,7 @@ MODEL OLG /
       WageEq5
       WageEq6
       WageEq7
+      WageEq8
       Wage2Eq1
       Wage2Eq2
       Wage2Eq3
@@ -467,6 +484,7 @@ MODEL OLG /
       Wage2Eq5
       Wage2Eq6
       Wage2Eq7
+      Wage2Eq8
       RentEq
       AssetEq
       ObjEq
@@ -595,8 +613,8 @@ LsupQE.LO(e,q,g,t)	=	1.E-13;
 Bond.L(t)		=	Bond0;
 Bond.FX(tp)		=	Bond0;
 Bond.FX(tmf)		=	Bond0;
-WTxR.L(t)		=	WTxR0;
-WTxR.FX(tp)		=	WTxR0;
+WTxR.L(q,t)		=	WTxR0(q);
+WTxR.FX(q,tp)		=	WTxR0(q);
 Input.L(s,ss,t)		=	Input0(s,ss);
 Input.FX(s,ss,tp)	=	Input0(s,ss);
 Input.LO(s,ss,t)	=	0;

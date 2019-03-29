@@ -19,13 +19,13 @@ SET
 
 * Sectors
 SET
-    s		Sectors		/s1*s7/
+    s		Sectors		/s1*s8/
 ;
 	ALIAS (S,SS),(SS,SSD),(S,SD);
 
 * Sectoral Employment / Sectoral Affiliation
 SET
-    e		Sectoral Employment	/e1*e7/
+    e		Sectoral Employment	/e1*e8/
 ;
 	ALIAS (e,ee);
 
@@ -38,7 +38,7 @@ SET
 	
 * Time
 SET
-    t           Total Time Horizon              /t1 * t40/
+    t           Total Time Horizon              /t1 * t30/
     tp(t)       Periods of Previously Born      /t1 * t3/
     tm(t)       Model Horizon
     tmf(t)      First Period of Model Horizon
@@ -70,8 +70,10 @@ PARAMETER
     GdpBondR		GDP to Bond Ratio (Public Debt Ratio)
     Bond0		Public Debt (Scaled due to long periods)
     CTxR0		Initial Consumption Tax Rate
-    WTxR0		Initial Income Tax Rate
+    WTxR0(q)		Initial Income Tax Rate
     KTxR0		Initial Capital Tax Rate
+    Export(s)		Exports
+    Import(s)		Imports
 ;
 
 * Parameters for Calibration
@@ -79,6 +81,7 @@ PARAMETER
     A0(s)       	Initial Scaling Factor
     AlK(s)      	Capital Share (alpha)
     AlX(s)		Input Share
+    AlEx(s)		Export Share
     X0(s)		Total Input
     sigma       	Sigma (Intertemporal Elasticity of Substitution)
     sigCon(g)		Elasticity of Substitution between consumption goods
@@ -214,7 +217,7 @@ VARIABLE
     Rent(t)     	Rental Rate of Capital
     Rint(t)     	Interest Rate
     Bond(t)		Government Debt
-    WTxR(t)		Wage Tax Rate
+    WTxR(q,t)		Wage Tax Rate
     GovS(s,t)		Sectoral Government Spending
     PGov(t)		Price of Government Spending
 ;

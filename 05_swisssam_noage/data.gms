@@ -1,12 +1,11 @@
 * ========================================================
 * 7 Sectors
-* Imperfect Substitutability between Age groups
 * Data File
 * ========================================================
 
 $INCLUDE declarations.gms
 
-$CALL GDXXRW.EXE SAM.xlsx par=SAM rng=sheet1!A13:O32
+$CALL GDXXRW.EXE SAM.xlsx par=SAM rng=sheet1!A13:O28
 $GDXIN SAM.gdx
 $LOAD SAM
 DISPLAY SAM;
@@ -82,62 +81,20 @@ YK0("s4")		= SAM("capital","firm4");
 YK0("s5")		= SAM("capital","firm5");
 YK0("s6")		= SAM("capital","firm6");
 YK0("s7")		= SAM("capital","firm7");
-LQA0("s1","q1","g1")	= SAM("labor1g1","firm1");
-LQA0("s1","q1","g2")	= SAM("labor1g2","firm1");
-LQA0("s1","q1","g3")	= SAM("labor1g3","firm1");
-LQA0("s1","q2","g1")	= SAM("labor2g1","firm1");
-LQA0("s1","q2","g2")	= SAM("labor2g2","firm1");
-LQA0("s1","q2","g3")	= SAM("labor2g3","firm1");
-LQA0("s2","q1","g1")	= SAM("labor1g1","firm2");
-LQA0("s2","q1","g2")	= SAM("labor1g2","firm2");
-LQA0("s2","q1","g3")	= SAM("labor1g3","firm2");
-LQA0("s2","q2","g1")	= SAM("labor2g1","firm2");
-LQA0("s2","q2","g2")	= SAM("labor2g2","firm2");
-LQA0("s2","q2","g3")	= SAM("labor2g3","firm2");
-LQA0("s3","q1","g1")	= SAM("labor1g1","firm3");
-LQA0("s3","q1","g2")	= SAM("labor1g2","firm3");
-LQA0("s3","q1","g3")	= SAM("labor1g3","firm3");
-LQA0("s3","q2","g1")	= SAM("labor2g1","firm3");
-LQA0("s3","q2","g2")	= SAM("labor2g2","firm3");
-LQA0("s3","q2","g3")	= SAM("labor2g3","firm3");
-LQA0("s4","q1","g1")	= SAM("labor1g1","firm4");
-LQA0("s4","q1","g2")	= SAM("labor1g2","firm4");
-LQA0("s4","q1","g3")	= SAM("labor1g3","firm4");
-LQA0("s4","q2","g1")	= SAM("labor2g1","firm4");
-LQA0("s4","q2","g2")	= SAM("labor2g2","firm4");
-LQA0("s4","q2","g3")	= SAM("labor2g3","firm4");
-LQA0("s5","q1","g1")	= SAM("labor1g1","firm5");
-LQA0("s5","q1","g2")	= SAM("labor1g2","firm5");
-LQA0("s5","q1","g3")	= SAM("labor1g3","firm5");
-LQA0("s5","q2","g1")	= SAM("labor2g1","firm5");
-LQA0("s5","q2","g2")	= SAM("labor2g2","firm5");
-LQA0("s5","q2","g3")	= SAM("labor2g3","firm5");
-LQA0("s6","q1","g1")	= SAM("labor1g1","firm6");
-LQA0("s6","q1","g2")	= SAM("labor1g2","firm6");
-LQA0("s6","q1","g3")	= SAM("labor1g3","firm6");
-LQA0("s6","q2","g1")	= SAM("labor2g1","firm6");
-LQA0("s6","q2","g2")	= SAM("labor2g2","firm6");
-LQA0("s6","q2","g3")	= SAM("labor2g3","firm6");
-LQA0("s7","q1","g1")	= SAM("labor1g1","firm7");
-LQA0("s7","q1","g2")	= SAM("labor1g2","firm7");
-LQA0("s7","q1","g3")	= SAM("labor1g3","firm7");
-LQA0("s7","q2","g1")	= SAM("labor2g1","firm7");
-LQA0("s7","q2","g2")	= SAM("labor2g2","firm7");
-LQA0("s7","q2","g3")	= SAM("labor2g3","firm7");
-LQ0("s1","q1")		= SUM(g,LQA0("s1","q1",g));
-LQ0("s2","q1")		= SUM(g,LQA0("s2","q1",g));
-LQ0("s3","q1")		= SUM(g,LQA0("s3","q1",g));
-LQ0("s4","q1")		= SUM(g,LQA0("s4","q1",g));
-LQ0("s5","q1")		= SUM(g,LQA0("s5","q1",g));
-LQ0("s6","q1")		= SUM(g,LQA0("s6","q1",g));
-LQ0("s7","q1")		= SUM(g,LQA0("s7","q1",g));
-LQ0("s1","q2")		= SUM(g,LQA0("s1","q2",g));
-LQ0("s2","q2")		= SUM(g,LQA0("s2","q2",g));
-LQ0("s3","q2")		= SUM(g,LQA0("s3","q2",g));
-LQ0("s4","q2")		= SUM(g,LQA0("s4","q2",g));
-LQ0("s5","q2")		= SUM(g,LQA0("s5","q2",g));
-LQ0("s6","q2")		= SUM(g,LQA0("s6","q2",g));
-LQ0("s7","q2")		= SUM(g,LQA0("s7","q2",g));
+LQ0("s1","q1")		= SAM("labor1","firm1");
+LQ0("s1","q2")		= SAM("labor2","firm1");
+LQ0("s2","q1")		= SAM("labor1","firm2");
+LQ0("s2","q2")		= SAM("labor2","firm2");
+LQ0("s3","q1")		= SAM("labor1","firm3");
+LQ0("s3","q2")		= SAM("labor2","firm3");
+LQ0("s4","q1")		= SAM("labor1","firm4");
+LQ0("s4","q2")		= SAM("labor2","firm4");
+LQ0("s5","q1")		= SAM("labor1","firm5");
+LQ0("s5","q2")		= SAM("labor2","firm5");
+LQ0("s6","q1")		= SAM("labor1","firm6");
+LQ0("s6","q2")		= SAM("labor2","firm6");
+LQ0("s7","q1")		= SAM("labor1","firm7");
+LQ0("s7","q2")		= SAM("labor2","firm7");
 Ldem0("s1")		= SUM(q,LQ0("s1",q));
 Ldem0("s2")		= SUM(q,LQ0("s2",q));
 Ldem0("s3")		= SUM(q,LQ0("s3",q));
@@ -161,18 +118,18 @@ WTxR0			= SAM("tax","labor1")/SUM(s,LQ0(s,"q1"));
 
 GdpBondR		= 0.5;
 Bond0			= GdpBondR*SUM(s,Y0(s))/20;
-TPop0   		= 1500;
+TPop0   		= 150;
 TPopQ0("q1")		= TPop0*0.4;
 TPopQ0("q2")		= Tpop0*0.6;
 * Assuming all sector-populations are the same size, can be adjusted in the final model:
-TPopQE0(q,e)		= TpopQ0(q)/CARD(e);
-*TPopQE0(q,"e1")		= Ldem0("s1")/SUM(s, Ldem0(s))*TPopQ0(q);
-*TPopQE0(q,"e2")		= Ldem0("s2")/SUM(s, Ldem0(s))*TPopQ0(q);
-*TPopQE0(q,"e3")		= Ldem0("s3")/SUM(s, Ldem0(s))*TPopQ0(q);
-*TPopQE0(q,"e4")		= Ldem0("s4")/SUM(s, Ldem0(s))*TPopQ0(q);
-*TPopQE0(q,"e5")		= Ldem0("s5")/SUM(s, Ldem0(s))*TPopQ0(q);
-*TPopQE0(q,"e6")		= Ldem0("s6")/SUM(s, Ldem0(s))*TPopQ0(q);
-*TPopQE0(q,"e7")		= Ldem0("s7")/SUM(s, Ldem0(s))*TPopQ0(q);
+*TPopQE0(q,e)		= TpopQ0(q)/CARD(e);
+TPopQE0(q,"e1")		= Ldem0("s1")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e2")		= Ldem0("s2")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e3")		= Ldem0("s3")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e4")		= Ldem0("s4")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e5")		= Ldem0("s5")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e6")		= Ldem0("s6")/SUM(s, Ldem0(s))*TPopQ0(q);
+TPopQE0(q,"e7")		= Ldem0("s7")/SUM(s, Ldem0(s))*TPopQ0(q);
 Gpop0   		= 1;
 Pop0(g) 		= Tpop0/CARD(g);
 PopQ0(g,q)		= TPopQ0(q)/CARD(g);

@@ -17,20 +17,20 @@ FlEndo		Flag (0) Exogenous (1) Endogenous Labor Supply
 
 
 * Model Parameters
-SigInter	= 5;
+SigInter	= 6;
 SigIntra	= 6;
 sigCon(g)	= 2.5;
-sigInv		= 3;
-sigLdem(s)	= 1.5;
-SigGov		= 2.5;
-sigX(s)		= 2.5;
-sigAge(s)	= 3;
+sigInv		= 4;
+sigLdem(s)	= 3.5;
+SigGov		= 1.5;
+sigX(s)		= 1.5;
+sigAge(s)	= 6;
 Rint0   	= 1.4;
 
 IF(CARD(g) EQ 4,
 	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
 	EP(gr)  = 0;
-	delta   = 0.3;
+	delta   = 1;
     );
 
 Leis0(gf,q,e)	= 0.35;
@@ -58,6 +58,7 @@ Lab0(q,g,"e4")	= LabS0(q,"s4",g);
 Lab0(q,g,"e5")	= LabS0(q,"s5",g);
 Lab0(q,g,"e6")	= LabS0(q,"s6",g);
 Lab0(q,g,"e7")	= LabS0(q,"s7",g);
+Lab0(q,g,"e8")	= LabS0(q,"s8",g);
 DISPLAY Lab0;
 
 BeqR(g) 	= 0;
@@ -109,7 +110,7 @@ EQUATIONS
 HBudg0Eq1(g+1,q,e)..
     (1+CTxR0)*Con0v(g,q,e) + B0v(g+1,q,e)
     =E=
-    ((1-WTxR0)*Lab0(q,g,e)*EPQ(g,q)) +
+    ((1-WTxR0(q))*Lab0(q,g,e)*EPQ(g,q)) +
     ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1)
     + Inh0v(g,q,e) - Beq0v(g,q,e)
     ;
@@ -118,7 +119,7 @@ HBudg0Eq1(g+1,q,e)..
 HBudg0Eq2(gl,q,e)..
     (1+CTxR0)*Con0v(gl,q,e)
     =E=
-    (1-WTxR0)*Lab0(q,gl,e)*EPQ(gl,q) +
+    (1-WTxR0(q))*Lab0(q,gl,e)*EPQ(gl,q) +
     (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) +
     Inh0v(gl,q,e) - Beq0v(gl,q,e)
     ;
@@ -168,7 +169,7 @@ Asset0Eq..
 * Government Budget Balance
 GBudg0Eq..
     Gpop0*Bond0v +
-    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,g,e)*EPQ(g,q)+
+    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0(q)*Lab0(q,g,e)*EPQ(g,q)+
     CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e))))
     =E=
     G0 + Rint0v*Bond0v
@@ -210,10 +211,10 @@ OLG0.HOLDFIXED=1;
 B0v.L(g,q,e)    =       K0/SUM(gg$(ORD(gg) GT 1), Pop0(gg));
 B0v.FX(gf,q,e)  =       0;
 Rint0v.L        =       Rint0;
-Rint0v.LO       =       0.2;
+Rint0v.LO       =       .1;
 Rint0v.UP       =       2.5;
 Rent0v.L        =       Rint0v.L-(1-delta);
-Rent0v.LO       =       0.0001;
+Rent0v.LO       =       .1;
 rho0v.L         =       rho0;
 rho0v.LO        =       0.1*rho0v.L;
 rho0v.UP        =       2.5;
@@ -227,6 +228,7 @@ VV0v.L(g,q,e)	=	1.5;
 gammav.L(g,q,e)	=	1;
 gammav.LO(g,q,e)=	0;
 Bond0v.L	=	Bond0;
+*Bond0v.fx 	= 	0;
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 * Options
@@ -292,7 +294,7 @@ $OFFTEXT
 
 * Updating sectoral structure of consumption baskets by generations
 
-$CALL GDXXRW.EXE ALCONSC.xlsx par=ALCONSC rng=sheet1!A1:H8
+$CALL GDXXRW.EXE ALCONSC.xlsx par=ALCONSC rng=sheet1!A1:E9
 $GDXIN ALCONSC.gdx
 $LOAD ALCONSC
 DISPLAY ALCONSC;

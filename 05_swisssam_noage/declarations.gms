@@ -1,15 +1,14 @@
 * ========================================================
 * 7 Sectors
-* Imperfect Substitutability between Age groups
 * Declarations File
 * ========================================================
 
 * Generations
 SET
-    g           Generations                     /g1 * g4/
+    g           Generations                     /g1 * g3/
     gf(g)       First Generation
-    gw(g)       Working Generations             /g1 * g3/
-    gr(g)       Retired Generations             /g4/
+    gw(g)       Working Generations             /g1 * g2/
+    gr(g)       Retired Generations             /g3/
     gl(g)       Last Generation
 ;
 
@@ -38,8 +37,8 @@ SET
 	
 * Time
 SET
-    t           Total Time Horizon              /t1 * t40/
-    tp(t)       Periods of Previously Born      /t1 * t3/
+    t           Total Time Horizon              /t1 * t25/
+    tp(t)       Periods of Previously Born      /t1 * t2/
     tm(t)       Model Horizon
     tmf(t)      First Period of Model Horizon
 ;
@@ -100,11 +99,11 @@ PARAMETER
     EPQ(g,q)		Earnings Profile for each qualification
     Leis0(g,q,e)	Initial Leisure
     LeisS0(g,q,s)	Initial Leisure
-    Lab0(q,g,e)        	Initial Physical (non-effective) Labor Supply (hours)
-    LabS0(q,s,g)	Sectoral Initial Physical (non-effective) Labor Supply (hours)
+    Lab0(q,e)        	Initial Physical (non-effective) Labor Supply (hours)
+    LabS0(q,s)		Sectoral Initial Physical (non-effective) Labor Supply (hours)
     Lsup0       	Initial Labor Supply
     LsupQ0(q)		Initial Labor Supply by qualification
-    LsupEQ0(e,q,g) 	Initial Labor Supply by qualification and sector
+    LsupEQ0(e,q) 	Initial Labor Supply by qualification and sector
     delta       	Depreciation Rate
     K0          	Initial Capital Stock
     Rent0       	Initial Rental Rate of Capital
@@ -115,13 +114,10 @@ PARAMETER
     SigInv		Elasticity of substitution between Investment goods
     AlInvS(s)		Share Parameter for Sectoral Investment
     LQ0(s,q)		Initial Labor Demand by Qualification
-    LQA0(s,q,g)		Initial Labor Demand by Qualification and Age
     AlDemQ(s,q)		Share Parameter for labor demand by qualification
     sigLdem(s)		Elasticity of Substitution between labor types
     AlXS(s,ss)		Share Parameter for sectoral inputs
     sigX(s)		Elasticity of Substitution between inputs
-    AlAge(s,q,g)		Share Parameter for Age groups in production
-    SigAge(s)		Elasticity of Substitution between age groups
     Gamma(g,q,e)	Consumption Intensity Parameter
     VV0(g,q,e)		Initial V
     AlGovS(s)		Share Parameter for Sectoral Government Spending
@@ -164,7 +160,7 @@ PARAMETER
     TPop(t)             Total Population
     Pop(t,g)            Population by Generation
     PopQE(q,e,t,g)	Household size by Generation
-    Lab(q,g,e,t)        Physical (non-effective) Labor Supply (hours)
+    Lab(q,e,t)          Physical (non-effective) Labor Supply (hours)
     rho			Discount Rate
     rhoGen(t,g)         Generation Specific Discount Rate
     RkG(g)              ???
@@ -188,7 +184,6 @@ VARIABLE
     Kdem(s,t)   	Capital Demand
     Ldem(s,t)   	Labor Demand
     LQ(s,q,t)		Labor Demand by Qualification
-    LQA(s,q,g,t)	Labor Demand by Qualification and Age
     Xdem(s,t)		Sectoral Input Demand
     Input(s,ss,t)	Sectoral Input Matrix
     Con(q,e,t,g)	Consumption per generation
@@ -200,7 +195,7 @@ VARIABLE
     Leis(q,e,t,g)	Leisure
     VV(q,e,t,g)		V
     mu(q,e,t,g)		Mu
-    LsupQE(e,q,g,t)    	Labor Supply by sector and qualification
+    LsupQE(e,q,t)     	Labor Supply by sector and qualification
     I(t)        	Investments
     PI(t)		Price of Investment Good
     IS(s,t)		Investment using goods produced by sector s
@@ -209,8 +204,6 @@ VARIABLE
     PX(s,t)		Composite Input Demand Price Index
     wage(s,q,t)		Skill specific wage
     wageE(e,q,t)	Skill specific wage (earned)
-    wageA(s,q,g,t)	Age specific wage
-    wageAE(e,q,g,t)	Age specific wage (earned)
     Rent(t)     	Rental Rate of Capital
     Rint(t)     	Interest Rate
     Bond(t)		Government Debt
