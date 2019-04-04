@@ -132,6 +132,7 @@ PARAMETER
     TESTJ		Test Parameter
     TESTJG(g,q,e)	Test Parameter
     TESTDEM(s)		Test Parameter
+    VA0(s)		Initial Value Added
 ;
 
 * Skipped Parameters: Z0, PopGR0
@@ -180,6 +181,7 @@ PARAMETER
     KTxR(t)		Capital Tax Rate (interest income)
     Gov(t)		Government Spending
     SigGov		Government Spending Elasticity
+    sigVA(s)		Elasticity for VA
 ;
 
 RkG(g)  =       ORD(g);
@@ -187,6 +189,8 @@ RkG(g)  =       ORD(g);
 * Variables for Simulation
 VARIABLE
     Y(s,t)      	Output
+    VA(s,t)		Value Added
+    PVA(s,t)		Price of Value Added
     P(s,t)		Price of Consumption goods
     Kdem(s,t)   	Capital Demand
     Ldem(s,t)   	Labor Demand

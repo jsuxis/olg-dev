@@ -173,6 +173,7 @@ Ldem0("s6")		= SUM(q,LQ0("s6",q));
 Ldem0("s7")		= SUM(q,LQ0("s7",q));
 Ldem0("s8")		= SUM(q,LQ0("s8",q));
 Y0(s)    		= Ldem0(s) + YK0(s) + X0(s);
+VA0(s)			= Ldem0(s) + YK0(s);
 GS0("s1")		= SAM("firm1","government");
 GS0("s2")		= SAM("firm2","government");
 GS0("s3")		= SAM("firm3","government");

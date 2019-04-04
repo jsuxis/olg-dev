@@ -22,9 +22,10 @@ SigIntra	= 6;
 sigCon(g)	= 2.5;
 sigInv		= 5;
 sigLdem(s)	= 3.5;
-SigGov		= 1.5;
+SigGov		= 2.5;
 sigX(s)		= 5;
 sigAge(s)	= 6;
+sigVA(s)	= 1.5;	
 Rint0   	= 1.4;
 
 IF(CARD(g) EQ 4,
@@ -74,12 +75,12 @@ Lsup0		= SUM((e,q,g),LsupEQ0(e,q,g));
 * Calibration
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Y0(s)		= YK0(s) + Ldem0(s) + X0(s);
+Y0(s)		= Va0(s) + X0(s);
 I0		= SUM(s,IS0(s));
 K0              = I0 / (delta + GPop0 - 1);
-AlK(s)$Y0(s)    = YK0(s) / Y0(s);
+AlK(s)$Y0(s)    = YK0(s) / VA0(s);
 AlX(s)$Y0(s)	= X0(s) / Y0(s);
-Ldem0(s)	= (1-AlK(s)-AlX(s))*Y0(s);
+Ldem0(s)	= (1-AlK(s))*VA0(s);
 C0		= SUM(s, CS0(s));
 Con0(g,q,e)	= C0 / SUM(gg,Pop0(gg));
 DIFFC0		= C0 - SUM((g,q,e),PopQE0(q,e,g)*Con0(g,q,e));
@@ -258,7 +259,7 @@ Rent0           =       Rent0v.L;
 Rint0           =       Rint0v.L;
 Kdem0(s)        =       YK0(s)/Rent0;
 Ksc0            =       SUM(s,Kdem0(s))/K0;
-A0(s)           =       Y0(s) / (Kdem0(s)**AlK(s) * X0(s)**AlX(s) * Ldem0(s)**(1-AlK(s)-AlX(s)));
+A0(s)           =       Y0(s) / (((1-AlX(s))*VA0(s)**((SigX(s)-1)/SigX(s)) + AlX(s)*X0(s)**((SigX(s)-1)/SigX(s)))**(SigX(s)/(SigX(s)-1)));
 Gamma(g,q,e)	=	Gammav.L(g,q,e);
 VV0(g,q,e)	=	VV0v.L(g,q,e);
 Bond0		=	Bond0v.L;

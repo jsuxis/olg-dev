@@ -38,7 +38,7 @@ SET
 	
 * Time
 SET
-    t           Total Time Horizon              /t1 * t40/
+    t           Total Time Horizon              /t1 * t50/
     tp(t)       Periods of Previously Born      /t1 * t3/
     tm(t)       Model Horizon
     tmf(t)      First Period of Model Horizon

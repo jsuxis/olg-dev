@@ -18,7 +18,7 @@ FlQual		Flag (1) for Qualification Shock
 * --- Choose Flags
 
 FlWalras	=	0;
-FlDemog1	= 	0;
+FlDemog1	= 	1;
 FlDemog2     	= 	0;
 FlProdu     	= 	0;
 FlQual		=	0;
@@ -658,7 +658,7 @@ EXECUTE '=gdx2xls results_base.gdx'
 
 
 IF(FlDemog1 EQ 1,
-NN(q,e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+4))
+NN(q,e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+6))
                                 =       1.01*NN(q,e,t);
 
 LOOP(t $(ORD(t) GT CARD(tp)),
@@ -717,7 +717,8 @@ EXECUTE '=gdx2xls results_dem2.gdx'
 
 * Prductivity Shock
 IF(FlProdu EQ 1,
-    A("s1",t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+5) = 1.01*A("s1",t);
+    A("s1",t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+6) = 1.01*A("s1",t);
+
 
     SOLVE OLG USING NLP MINIMIZING OBJ;       
 

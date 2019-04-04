@@ -16,7 +16,7 @@ FlQual		Flag (1) for Qualification Shock
 
 * --- Choose Flags
 
-FlWalras	=	1;
+FlWalras	=	0;
 FlDemog1	= 	1;
 FlDemog2     	= 	0;
 FlProdu     	= 	0;
@@ -202,7 +202,7 @@ LdemQEq(s,q,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)
 XSdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     PX(s,t)**(1-sigX(s))
     =E=
-    SUM(ss, AlXS(ss,s) * P(ss,t)**(1-sigX(s)))
+    SUM(ss$(AlXS(ss,s) GT 1.E-13), AlXS(ss,s) * P(ss,t)**(1-sigX(s)))
     ;
 
 * FOC of sectoral inputs
