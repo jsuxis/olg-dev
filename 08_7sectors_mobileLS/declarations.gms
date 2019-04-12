@@ -1,6 +1,5 @@
 * ========================================================
 * 7 Sectors
-* Imperfect Substitutability between Age groups
 * Declarations File
 * ========================================================
 
@@ -23,11 +22,6 @@ SET
 ;
 	ALIAS (S,SS),(SS,SSD),(S,SD);
 
-* Sectoral Employment / Sectoral Affiliation
-SET
-    e		Sectoral Employment	/e1*e7/
-;
-	ALIAS (e,ee);
 
 * Qualifications
 SET
@@ -56,12 +50,9 @@ PARAMETER
     Y0(s)       	Initial Output
     Tpop0       	Initial Total Population
     TPopQ0(q)		Initial Population by Qualification
-    TPopQE0(q,e)	Initial Population by Qualification and Sector		
     GPop0       	Initial Gross Population Growth Rate
     Pop0(g)     	Initial Population by Generation
-    PopQ0(g,q)		Initial Population by Generation and Qualification
-    PopQE0(q,e,g)	Initial Population by Generation Sector-Affil. and Qualification    
-    PopQS0(q,s,g)	Initial Population by Generation Sector-Empl. and Qualification
+    PopQ0(q,g)		Initial Population by Generation and Qualification
     SAM(*,*)		Social Accounting Matrix
     CS0(s)		Initial Sectoral Consumption
     IS0(s)		Initial Sectoral Investment
@@ -72,8 +63,6 @@ PARAMETER
     CTxR0		Initial Consumption Tax Rate
     WTxR0		Initial Income Tax Rate
     KTxR0		Initial Capital Tax Rate
-    Export(s)		Exports
-    Import(s)		Imports
 ;
 
 * Parameters for Calibration
@@ -81,33 +70,29 @@ PARAMETER
     A0(s)       	Initial Scaling Factor
     AlK(s)      	Capital Share (alpha)
     AlX(s)		Input Share
-    AlEx(s)		Export Share
     X0(s)		Total Input
     sigma       	Sigma (Intertemporal Elasticity of Substitution)
     sigCon(g)		Elasticity of Substitution between consumption goods
     SigInter		Intertemporal Elasticity of Substitution
     SigIntra		Intratemporal Elasticity of Substitution
-    AlConS(s,g,q,e)	Share parameter for consumption
+    AlConS(s,g,q)	Share parameter for consumption
     AlConSC(s,g) 	Share of spending by sectors and generation
     eta0(s,q)		Initial Sector affinity
     eta(s,q,t)		Sector affinity
     rho0        	Initial Discount Rate
-    B0(g,q,e)     	Initial Bond (Lend)
-    Con0(g,q,e)   	Initial Consumption Demand
-    ConS0(s,g,q,e)	Initial Sectoral Consumption Demand
-    Beq0(g,q,e)   	Initial Bequest
-    Inh0(g,q,e)   	Initial Inheritance
+    B0(g,q)     	Initial Bond (Lend)
+    Con0(g,q)   	Initial Consumption Demand
+    ConS0(s,g,q)	Initial Sectoral Consumption Demand
+    Beq0(g,q)   	Initial Bequest
+    Inh0(g,q)   	Initial Inheritance
     BeqR(g)     	Bequest Rate
     InhR(g)     	Inheritance Rate
     EP(g)       	Earnings Profile (base)
     EPQ(g,q)		Earnings Profile for each qualification
-    Leis0(g,q,e)		Initial Leisure
-    LeisS0(g,q,s)		Initial Leisure
-    Lab0(q,e)        	Initial Physical (non-effective) Labor Supply (hours)
-    LabS0(q,s)		Sectoral Initial Physical (non-effective) Labor Supply (hours)
+    Leis0(g,q)		Initial Leisure
+    Lab0(q)        	Initial Physical (non-effective) Labor Supply (hours)
     Lsup0       	Initial Labor Supply
     LsupQ0(q)		Initial Labor Supply by qualification
-    LsupEQ0(e,q) 	Initial Labor Supply by qualification and sector
     delta       	Depreciation Rate
     K0          	Initial Capital Stock
     Rent0       	Initial Rental Rate of Capital
@@ -118,21 +103,17 @@ PARAMETER
     SigInv		Elasticity of substitution between Investment goods
     AlInvS(s)		Share Parameter for Sectoral Investment
     LQ0(s,q)		Initial Labor Demand by Qualification
-    LQA0(s,q,g)		Initial Labor Demand by Qualification and Age
     AlDemQ(s,q)		Share Parameter for labor demand by qualification
     sigLdem(s)		Elasticity of Substitution between labor types
     AlXS(s,ss)		Share Parameter for sectoral inputs
     sigX(s)		Elasticity of Substitution between inputs
-    AlAge(s,q,g)		Share Parameter for Age groups in production
-    SigAge(s)		Elasticity of Substitution between age groups
-    Gamma(g,q,e)	Consumption Intensity Parameter
-    VV0(g,q,e)		Initial V
+    Gamma(g,q)		Consumption Intensity Parameter
+    VV0(g,q)		Initial V
     AlGovS(s)		Share Parameter for Sectoral Government Spending
     DIFFC0		Test Parameter
     TESTJ		Test Parameter
-    TESTJG(g,q,e)	Test Parameter
+    TESTJG(g,q)		Test Parameter
     TESTDEM(s)		Test Parameter
-    VA0(s)		Initial Value Added
 ;
 
 * Skipped Parameters: Z0, PopGR0
@@ -145,30 +126,30 @@ PARAMETER
 
 * Variables for Calibration
 VARIABLES
-    Beq0v(g,q,e)
-    Inh0v(g,q,e)
-    Con0v(g,q,e)
-    B0v(g,q,e)
+    Beq0v(g,q)
+    Inh0v(g,q)
+    Con0v(g,q)
+    B0v(g,q)
     rho0v
     Rent0v
     Rint0v
     Obj
-    ConS0v(s,g,q,e)
+    ConS0v(s,g,q)
     LQ0v(s,q)
-    gammav(g,q,e)
-    VV0v(g,q,e)
+    gammav(g,q)
+    VV0v(g,q)
     Bond0v
 ;
 
 * Parameters for Simulation
 PARAMETER
     A(s,t)              Scaling factor for C-D Production function
-    NN(q,e,t)           Birth Rate
+    NN(q,t)	        Birth Rate
     GPop(t)             Gross Population Growth Rate
     TPop(t)             Total Population
     Pop(t,g)            Population by Generation
-    PopQE(q,e,t,g)	Household size by Generation
-    Lab(q,e,t)        	Physical (non-effective) Labor Supply (hours)
+    PopQ(q,t,g)		Household size by Generation
+    Lab(q,t)          	Physical (non-effective) Labor Supply (hours)
     rho			Discount Rate
     rhoGen(t,g)         Generation Specific Discount Rate
     RkG(g)              ???
@@ -181,7 +162,6 @@ PARAMETER
     KTxR(t)		Capital Tax Rate (interest income)
     Gov(t)		Government Spending
     SigGov		Government Spending Elasticity
-    sigVA(s)		Elasticity for VA
 ;
 
 RkG(g)  =       ORD(g);
@@ -189,35 +169,29 @@ RkG(g)  =       ORD(g);
 * Variables for Simulation
 VARIABLE
     Y(s,t)      	Output
-    VA(s,t)		Value Added
-    PVA(s,t)		Price of Value Added
     P(s,t)		Price of Consumption goods
     Kdem(s,t)   	Capital Demand
     Ldem(s,t)   	Labor Demand
     LQ(s,q,t)		Labor Demand by Qualification
-    LQA(s,q,g,t)	Labor Demand by Qualification and Age
     Xdem(s,t)		Sectoral Input Demand
     Input(s,ss,t)	Sectoral Input Matrix
-    Con(q,e,t,g)	Consumption per generation
-    PCon(q,e,t,g)	Price Index of total consumption per generation
-    ConS(s,q,e,t,g)	Sectoral consumption per generations
-    B(q,e,t,g)      	Bond (Lend)
-    Beq(q,e,t,g)    	Bequests
-    Inh(q,e,t,g)    	Inheritance
-    Leis(q,e,t,g)	Leisure
-    VV(q,e,t,g)		V
-    mu(q,e,t,g)		Mu
-    LsupQE(e,q,t)    	Labor Supply by sector and qualification
+    Con(q,t,g)		Consumption per generation
+    PCon(q,t,g)		Price Index of total consumption per generation
+    ConS(s,q,t,g)	Sectoral consumption per generations
+    B(q,t,g)      	Bond (Lend)
+    Beq(q,t,g)    	Bequests
+    Inh(q,t,g)    	Inheritance
+    Leis(q,t,g)		Leisure
+    VV(q,t,g)		V
+    mu(q,t,g)		Mu
+    LsupQ(q,t)     	Labor Supply by sector and qualification
     I(t)        	Investments
     PI(t)		Price of Investment Good
     IS(s,t)		Investment using goods produced by sector s
     K(t)        	Capital Stock
-    W(s,t)      	Composite wage index for effective units of labor
+    W(t)      		Composite wage index for effective units of labor
+    wage(q,t)		Qualification specific wage rate
     PX(s,t)		Composite Input Demand Price Index
-    wage(s,q,t)		Skill specific wage
-    wageE(e,q,t)	Skill specific wage (earned)
-    wageA(s,q,g,t)	Age specific wage
-    wageAE(e,q,g,t)	Age specific wage (earned)
     Rent(t)     	Rental Rate of Capital
     Rint(t)     	Interest Rate
     Bond(t)		Government Debt

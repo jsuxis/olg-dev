@@ -79,6 +79,7 @@ PARAMETER
 * Parameters for Calibration
 PARAMETER
     A0(s)       	Initial Scaling Factor
+    AV0(s)
     AlK(s)      	Capital Share (alpha)
     AlX(s)		Input Share
     AlEx(s)		Export Share
@@ -163,6 +164,7 @@ VARIABLES
 * Parameters for Simulation
 PARAMETER
     A(s,t)              Scaling factor for C-D Production function
+    AV(s,t)
     NN(q,e,t)           Birth Rate
     GPop(t)             Gross Population Growth Rate
     TPop(t)             Total Population

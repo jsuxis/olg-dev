@@ -16,7 +16,7 @@ FlQual		Flag (1) for Qualification Shock
 
 * --- Choose Flags
 
-FlWalras	=	0;
+FlWalras	=	1; 
 FlDemog1	= 	1;
 FlDemog2     	= 	1;
 FlProdu     	= 	1;
@@ -28,9 +28,10 @@ FlQual		=	0;
 
 EQUATIONS
     QEq(s,t)            Production Function
+    PQEq(s,t)
     KdemEq(s,t)         Capital Demand
     LdemEq(s,t)         Labor Demand
-    XdemEq(s,t)		Input Demand
+    XdemEq(ss,s,t)	Input Demand
     HBudgEq1(q,e,t,g)   HH Budget Constraint
     HBudgEq2(q,e,t,g)   HH Budget Constraint last generation
     BeqEq(q,e,t,g) 	Bequests
@@ -78,32 +79,39 @@ EQUATIONS
 ;
 
 
+
 * Production Function (in logs)
 QEq(s,t)        $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LOG(Y(s,t))
     =E=
-    LOG(A(s,t)) + AlK(s)*LOG(Kdem(s,t)) + AlX(s)*LOG(Xdem(s,t)) + (1-AlK(s)-AlX(s))*LOG(Ldem(s,t)) 
+    LOG(1/(1-AlX(s))) + AlK(s)*LOG(Kdem(s,t)) + (1-AlK(s))*LOG(Ldem(s,t)) + LOG(A(s,t)) 
+    ;
+
+PQEq(s,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    P(s,t)
+    =E=
+    PVA(s,t) + SUM(ss,AlXS(ss,s)*P(ss,t))
     ;
 
 * Capital Demand (FOC1)
 KdemEq(s,t)     $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LOG(Rent(t)) + LOG(Kdem(s,t))
     =E=
-    LOG(Alk(s)) + LOG(Y(s,t)) + LOG(P(s,t))
+    LOG(Alk(s)) + LOG(VA(s,t)) + LOG(PVA(s,t))
     ;
 
 * Labor Demand (FOC2)
 LdemEq(s,t)     $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LOG(W(s,t)) + LOG(Ldem(s,t))
     =E=
-    LOG((1-AlK(s)-AlX(s))) + LOG(Y(s,t)) + LOG(P(s,t))
+    LOG((1-AlK(s))) + LOG(VA(s,t)) + LOG(PVA(s,t))
     ;
 
 * Input Demand (FOC3)
-XdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LOG(PX(s,t)) + LOG(Xdem(s,t))
+XdemEq(ss,s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    Input(ss,s,t)
     =E=
-    LOG(AlX(s)) + LOG(Y(s,t)) + LOG(P(s,t))
+    AlX(s)*AlXS(ss,s)*Y(s,t)
     ;
 
 * HH Budget Constraint
@@ -196,20 +204,6 @@ LdemQEq(s,q,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)
     AlDemQ(s,q)*(W(s,t)/wage(s,q,t))**sigLdem(s)*Ldem(s,t)
     ;
     
-* FOC of sectoral inputs
-XSdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    PX(s,t)**(1-sigX(s))
-    =E=
-    SUM(ss, AlXS(ss,s) * P(ss,t)**(1-sigX(s)))
-    ;
-
-* FOC of sectoral inputs
-XdemSEq(s,ss,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)
-		AND AlXS(s,ss) GT 1.E-13)..
-    Input(ss,s,t)
-    =E=
-    AlXS(ss,s)*(PX(s,t)/P(ss,t))**sigX(s)*Xdem(s,t)
-    ;
 
 * Labor Supply Balance
 LsupEq(e,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
@@ -407,6 +401,7 @@ RentEq(t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
 
 MODEL OLG /
       QEq
+      PQEq
       KdemEq
       LdemEq
       XdemEq
@@ -431,8 +426,6 @@ MODEL OLG /
       GBudgEqSS
       PGovEq	
       GovSEq
-      XSdemEq
-      XdemSEq
       PEq
       WageEq
       WageEq2

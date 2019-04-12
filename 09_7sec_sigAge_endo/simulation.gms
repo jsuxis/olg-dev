@@ -113,7 +113,7 @@ XdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
 HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
     PCon(q,e,t,g)*(1+CTxR(t))*Con(q,e,t,g) + B(q,e,t+1,g+1)
     =E=
-    ((1-WTxR(t))*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q))+
+    ((1-WTxR(t))*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)) * (1 - Leis(q,e,t,g))+
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,g))$(ORD(g) GT 1) +
     Inh(q,e,t,g) - Beq(q,e,t,g)
     ;
@@ -122,7 +122,7 @@ HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
 HBudgEq2(q,e,t,gl)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     PCon(q,e,t,gl)*(1+CTxR(t))*Con(q,e,t,gl)
     =E=
-    ((1-WTxR(t))*wageAE(e,q,gl,t)*Lab(q,gl,e,t)*EPQ(gl,q)) +
+    ((1-WTxR(t))*wageAE(e,q,gl,t)*Lab(q,gl,e,t)*EPQ(gl,q)) * (1 - Leis(q,e,t,gl))+
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,gl)) +
     Inh(q,e,t,gl) - Beq(q,e,t,gl)
     ;
@@ -144,7 +144,7 @@ InhEq(q,e,t,g)     $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm) AND InhR
 ConEq(q,e,t+1,g+1)  $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)-1)..
     Con(q,e,t+1,g+1)/Con(q,e,t,g)
     =E=
-    ((((Rint(t+1)-KTxR(t+1)*(Rint(t+1)-1))*PCon(q,e,t,g) / (rho*PCon(q,e,t+1,g+1)))*((1+CTxR(t))/(1+CTxR(t+1))))**SigInter)
+    (((Rint(t+1)-KTxR(t+1)*(Rint(t+1)-1))*PCon(q,e,t,g) / (rho*PCon(q,e,t+1,g+1)))*((1+CTxR(t))/(1+CTxR(t+1))))**SigInter * (VV(q,e,t+1,g+1)/VV(q,e,t,g))
     ;
 
 * Steady State Consumption Profile
@@ -152,6 +152,28 @@ ConEqSS(q,e,t+1,g)  $((ORD(t) EQ (CARD(tp) + CARD(tm)-1) AND ORD(g) LT CARD(g)))
     Con(q,e,t+1,g)
     =E=
     Con(q,e,t,g)
+    ;
+
+* Leisure FOC	
+LeisEq(q,e,t,g)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    Leis(q,e,t,g)/Con(q,e,t,g)
+    =E=
+    (Gamma(g,q,e)/((1-WTxR(t))*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q) + mu(q,e,t,g)))**SigIntra
+    ;
+
+* Mu
+MuEq(q,e,t,g)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    mu(q,e,t,g)
+    =E=
+    mu(q,e,t,g)*Leis(q,e,t,g)
+    ;
+
+* Definition of VV
+VVEq(q,e,t,g)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    VV(q,e,t,g)
+    =E=
+    (1+ (Gamma(g,q,e)**SigIntra)* (((1-WTxR(t))*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q) + mu(q,e,t,g))**(1-SigIntra)))
+    **((SigIntra-SigInter)/(1-SigIntra))
     ;
 
 * FOC of Intratemporal (sectoral) consumption allocation
@@ -232,7 +254,7 @@ XdemSEq(s,ss,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)
 LsupEq(e,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LsupQE(e,q,g,t)
     =E=
-    PopQE(q,e,t,g)*Lab(q,g,e,t)*EPQ(g,q)
+    PopQE(q,e,t,g)*Lab(q,g,e,t)*EPQ(g,q) * (1 - Leis(q,e,t,g))
     ;
 
 * Balance of interest and rental rates
@@ -259,7 +281,7 @@ KstockEqSS(t)   $((ORD(t) EQ CARD(tp)+CARD(tm)))..
 * Government Budget Constraint 1
 GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
     PGov(t)*Bond(t+1)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
+      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q) * (1 - Leis(q,e,t,g))
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g)))) 
     =E=
@@ -269,7 +291,7 @@ GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
 * Government Budget in Steady State
 GBudgEqSS(t)	$(ORD(t) EQ CARD(tp)+CARD(tm))..
     GPop(t)*PGov(t)*Bond(t)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
+      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q) * (1 - Leis(q,e,t,g))
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g))))
     =E=
@@ -431,6 +453,9 @@ MODEL OLG /
       HBudgEq2
       BeqEq
       InhEq
+      LeisEq
+      MuEq
+      VVEq
       ConEq
       ConEqSS
       LsupEq
@@ -664,7 +689,7 @@ IF(FlProdu EQ 1,
 
 *    CS(s,t) = SUM(g,Pop(t,g)*ConS.L(s,t,g));
     EXECUTE_UNLOAD 'results_prod.gdx'
-*	EXECUTE '=gdx2xls results_prod.gdx'
+	EXECUTE '=gdx2xls results_prod.gdx'
 
 );
 

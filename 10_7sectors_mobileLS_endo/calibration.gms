@@ -9,62 +9,31 @@ $INCLUDE data.gms
 * Initializing
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-* Flag for Endogenous Labor Supply
-PARAMETER
-FlEndo		Flag (0) Exogenous (1) Endogenous Labor Supply
-;
+* Exogenous Parameters:
+$include "C:\Users\Manu\Documents\olg\productivity_shocks\parameters.gms"
 
-
-* Model Parameters
-SigInter	= 6;
-SigIntra	= 3;
-sigCon(g)	= 2.5;
-sigInv		= 3;
-sigLdem(s)	= 1.5;
-SigGov		= 2.5;
-sigX(s)		= 2.5;
-Rint0   	= 1.40;
-
-IF(CARD(g) EQ 4,
-	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
-	EP(gr)  = 0;
-	delta   = 0.2;
-    );
-
-Leis0(gf,q,e)	= 0.35;
-Leis0("g2",q,e)	= 0.20;
-Leis0("g3",q,e)	= 0.90;
-LeisS0(g,q,"s1")=Leis0(g,q,"e1");
-LeisS0(g,q,"s2")=Leis0(g,q,"e2");
-LeisS0(g,q,"s3")=Leis0(g,q,"e3");
-LeisS0(g,q,"s4")=Leis0(g,q,"e4");
-LeisS0(g,q,"s5")=Leis0(g,q,"e5");
-LeisS0(g,q,"s6")=Leis0(g,q,"e6");
-LeisS0(g,q,"s7")=Leis0(g,q,"e7");
+Rint0   	= 1.4;
 
 * Specifying Earnings Profiles for each qualification 
 EPQ(g,"q1")	= EP(g)*1.2;
 EPQ(g,"q2")	= EP(g)*0.8;
 DISPLAY EPQ;
 
-LabS0(q,s)   =	(LQ0(s,q) / SUM(g,PopQS0(q,s,g)*EPQ(g,q)));
+* Leisure Parameters
+Leis0(gf,q)	= 0.35;
+Leis0("g2",q)	= 0.20;
+Leis0("g3",q)	= 0.25;
+Leis0("g4",q) 	= 0.90;
 
-Lab0(q,"e1")	= LabS0(q,"s1");
-Lab0(q,"e2")	= LabS0(q,"s2");
-Lab0(q,"e3")	= LabS0(q,"s3");
-Lab0(q,"e4")	= LabS0(q,"s4");
-Lab0(q,"e5")	= LabS0(q,"s5");
-Lab0(q,"e6")	= LabS0(q,"s6");
-Lab0(q,"e7")	= LabS0(q,"s7");
+Lab0(q)   =	(SUM(s,LQ0(s,q)) / SUM(g,PopQ0(q,g)*EPQ(g,q) * (1 - Leis0(g,q))));
+
 DISPLAY Lab0;
 
-BeqR(g) 	= 0;
-InhR(g) 	= 0;
 rho0    	= 0.80;
+
 AlDemQ(s,q)	= LQ0(s,q)/Ldem0(s);
-LsupEQ0(e,q) = 	(SUM(g, PopQE0(q,e,g)*Lab0(q,e)*EPQ(g,q)));
-;
-Lsup0		= SUM((e,q),LsupEQ0(e,q));
+LsupQ0(q) 	= (SUM(g, PopQ0(q,g)*Lab0(q)*EPQ(g,q) * (1 - Leis0(g,q))));
+Lsup0		= SUM((q),LsupQ0(q));
 
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -78,8 +47,8 @@ AlK(s)$Y0(s)    = YK0(s) / Y0(s);
 AlX(s)$Y0(s)	= X0(s) / Y0(s);
 Ldem0(s)	= (1-AlK(s)-AlX(s))*Y0(s);
 C0		= SUM(s, CS0(s));
-Con0(g,q,e)	= C0 / SUM(gg,Pop0(gg));
-DIFFC0		= C0 - SUM((g,q,e),PopQE0(q,e,g)*Con0(g,q,e));
+Con0(g,q)	= C0 / SUM(gg,Pop0(gg));
+DIFFC0		= C0 - SUM((g,q),PopQ0(q,g)*Con0(g,q));
 	DISPLAY DIFFC0
 	ABORT$(ABS(DIFFC0) GT 1.E-10) "Consumption not balanced";
 
@@ -89,13 +58,13 @@ DIFFC0		= C0 - SUM((g,q,e),PopQE0(q,e,g)*Con0(g,q,e));
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 EQUATIONS
-    HBudg0Eq1(g,q,e)    HH Budget Constraint
-    HBudg0Eq2(g,q,e)    HH Budget Constraint last generation
-    GammaEq(g,q,e)	Consumption intensity parameter calibration 
-    Beq0Eq(g,q,e)       Bequests
-    Inh0Eq(g,q,e)       Inheritances
-    VV0vEq(g,q,e)	Definition of V	
-    Con0Eq(g,q,e)       Intertemporal Consumption (Euler Equation)
+    HBudg0Eq1(g,q)    	HH Budget Constraint
+    HBudg0Eq2(g,q)    	HH Budget Constraint last generation
+    GammaEq(g,q)	Consumption intensity parameter calibration 
+    Beq0Eq(g,q)       	Bequests
+    Inh0Eq(g,q) 	Inheritances
+    VV0vEq(g,q)		Definition of V	
+    Con0Eq(g,q)       	Intertemporal Consumption (Euler Equation)
     C0Eq                Aggregate Consumption
     Rint0VEq            Balance of interest and rental rates
     Asset0Eq            Asset Market Equilibrium
@@ -104,47 +73,63 @@ EQUATIONS
 ;
 
 * HH Budget Constraint
-HBudg0Eq1(g+1,q,e)..
-    (1+CTxR0)*Con0v(g,q,e) + B0v(g+1,q,e)
+HBudg0Eq1(g+1,q)..
+    (1+CTxR0)*Con0v(g,q) + B0v(g+1,q)
     =E=
-    ((1-WTxR0)*Lab0(q,e)*EPQ(g,q)) +
-    ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1)
-    + Inh0v(g,q,e) - Beq0v(g,q,e)
+    ((1-WTxR0)*Lab0(q)*EPQ(g,q) * (1 - Leis0(g,q))) +
+    ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q))$(ORD(g) GT 1)
+    + Inh0v(g,q) - Beq0v(g,q)
     ;
 
 * HH Budget Constraint last generation
-HBudg0Eq2(gl,q,e)..
-    (1+CTxR0)*Con0v(gl,q,e)
+HBudg0Eq2(gl,q)..
+    (1+CTxR0)*Con0v(gl,q)
     =E=
-    (1-WTxR0)*Lab0(q,e)*EPQ(gl,q) +
-    (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) +
-    Inh0v(gl,q,e) - Beq0v(gl,q,e)
+    (1-WTxR0)*Lab0(q)*EPQ(gl,q) * (1 - Leis0(gl,q)) +
+    (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q) +
+    Inh0v(gl,q) - Beq0v(gl,q)
+    ;
+
+* Consumption intensity parameter calibration
+GammaEq(g,q)..
+    Gammav(g,q)
+    =E=
+    ((1-WTxR0)*Lab0(q)*EPQ(g,q)) * ((Leis0(g,q)/Con0v(g,q))**(1/SigIntra))
     ;
 
 * Bequests
-Beq0Eq(gl,q,e)..
-    Beq0v(gl,q,e)
+Beq0Eq(gl,q)..
+    Beq0v(gl,q)
     =E=
-    BeqR(gl)*Con0v(gl,q,e)
+    BeqR(gl)*Con0v(gl,q)
     ;
 
 * Inheritance
-Inh0Eq(gw,q,e)..
-    PopQE0(q,e,gw)*Inh0v(gw,q,e)
+Inh0Eq(gw,q)..
+    PopQ0(q,gw)*Inh0v(gw,q)
     =E=
-    InhR(gw)*SUM(gr, PopQE0(q,e,gr)*Beq0v(gr,q,e))
+    InhR(gw)*SUM(gr, PopQ0(q,gr)*Beq0v(gr,q))
     ;
 
 * Intertemporal Consumption (Euler Equation)
-Con0Eq(g+1,q,e)..
-    Con0v(g+1,q,e)/Con0v(g,q,e)
+Con0Eq(g+1,q)..
+    Con0v(g+1,q)/Con0v(g,q)
     =E=
-    ((Rint0v-KTxR0*(Rint0v-1))/rho0v)**SigInter 
+    ((Rint0v-KTxR0*(Rint0v-1))/rho0v)**SigInter *
+    (VV0v(g+1,q)/VV0v(g,q))
+    ;
+
+* Definition of V
+VV0vEq(g,q)..
+    VV0v(g,q)
+    =E=
+    (1+ (gammav(g,q)**SigIntra) * (((1-WTxR0)*Lab0(q)*EPQ(g,q))**(1-SigIntra)))
+    **((SigIntra-SigInter)/(1-SigIntra))
     ;
 
 * Aggregate Consumption
 C0Eq..
-    SUM((g,q,e), PopQE0(q,e,g)*Con0v(g,q,e))
+    SUM((g,q), PopQ0(q,g)*Con0v(g,q))
     =E=
     C0
     ;
@@ -158,7 +143,7 @@ Rint0vEq..
 
 * Asset Market Equiliubrium
 Asset0Eq..
-    SUM((g,q,e), PopQE0(q,e,g+1)*B0v(g+1,q,e))
+    SUM((g,q), PopQ0(q,g+1)*B0v(g+1,q))
     =E=
     K0 + Bond0v
     ;
@@ -166,8 +151,8 @@ Asset0Eq..
 * Government Budget Balance
 GBudg0Eq..
     Gpop0*Bond0v +
-    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,e)*EPQ(g,q)+
-    CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e))))
+    (SUM((g,q),PopQ0(q,g)*(WTxR0*Lab0(q)*EPQ(g,q) * (1 - Leis0(g,q))+
+    CTxR0*Con0v(g,q)+KTxR0*(Rint0v-1)*B0v(g,q))))
     =E=
     G0 + Rint0v*Bond0v
     ;
@@ -186,8 +171,10 @@ ObjEq..
 MODEL OLG0 /
       HBudg0Eq1
       HBudg0Eq2
+      GammaEq
       Beq0Eq
       Inh0Eq
+      VV0vEq
       Con0Eq
       C0Eq
       Rint0vEq
@@ -205,8 +192,8 @@ OLG0.HOLDFIXED=1;
 * Initial Values and Bounds
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-B0v.L(g,q,e)    =       K0/SUM(gg$(ORD(gg) GT 1), Pop0(gg));
-B0v.FX(gf,q,e)  =       0;
+B0v.L(g,q)    	=       K0/SUM(gg$(ORD(gg) GT 1), Pop0(gg));
+B0v.FX(gf,q)  	=       0;
 Rint0v.L        =       Rint0;
 Rint0v.LO       =       0.75;
 Rint0v.UP       =       2.5;
@@ -215,15 +202,15 @@ Rent0v.LO       =       0.01;
 rho0v.L         =       rho0;
 rho0v.LO        =       0.5*rho0v.L;
 rho0v.UP        =       2.5;
-Con0v.L(g,q,e)  =       Con0(g,q,e);
-Con0v.LO(g,q,e)	=	0.01;
-Beq0v.L(gr,q,e) =       BeqR(gr)*Con0(gr,q,e);
-Beq0v.FX(g,q,e)$(ORD(g) LT CARD(g)) =       BeqR(g);
-Inh0v.L(gw,q,e) =       InhR(gw)*SUM(gr,Pop0(gr)*BeqR(gr)*Con0(gr,q,e))/Pop0(gw);
-Inh0v.FX(gr,q,e)=       InhR(gr);
-VV0v.L(g,q,e)	=	1.5;
-gammav.L(g,q,e)	=	1;
-gammav.LO(g,q,e)=	0;
+Con0v.L(g,q)  	=       Con0(g,q);
+Con0v.LO(g,q)	=	0.01;
+Beq0v.L(gr,q) 	=       BeqR(gr)*Con0(gr,q);
+Beq0v.FX(g,q)$(ORD(g) LT CARD(g)) =       BeqR(g);
+Inh0v.L(gw,q) 	=       InhR(gw)*SUM(gr,Pop0(gr)*BeqR(gr)*Con0(gr,q))/Pop0(gw);
+Inh0v.FX(gr,q)	=       InhR(gr);
+VV0v.L(g,q)	=	1.5;
+gammav.L(g,q)	=	1;
+gammav.LO(g,q)	=	0;
 Bond0v.L	=	Bond0;
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -245,18 +232,18 @@ ABORT$(OLG0.ModelStat GT 2)"Check Calibration: No Feasible Solution for ---> Mod
 * Save Results
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-B0(g,q,e)       =       B0v.L(g,q,e);
-Con0(g,q,e)     =       Con0v.L(g,q,e);
+B0(g,q)       	=       B0v.L(g,q);
+Con0(g,q)     	=       Con0v.L(g,q);
 rho0            =       rho0v.L;
-Beq0(g,q,e)     =       Beq0v.L(g,q,e);
-Inh0(g,q,e)     =       Inh0v.L(g,q,e);
+Beq0(g,q)     	=       Beq0v.L(g,q);
+Inh0(g,q)     	=       Inh0v.L(g,q);
 Rent0           =       Rent0v.L;
 Rint0           =       Rint0v.L;
 Kdem0(s)        =       YK0(s)/Rent0;
 Ksc0            =       SUM(s,Kdem0(s))/K0;
 A0(s)           =       Y0(s) / (Kdem0(s)**AlK(s) * X0(s)**AlX(s) * Ldem0(s)**(1-AlK(s)-AlX(s)));
-Gamma(g,q,e)	=	Gammav.L(g,q,e);
-VV0(g,q,e)	=	VV0v.L(g,q,e);
+Gamma(g,q)	=	Gammav.L(g,q);
+VV0(g,q)	=	VV0v.L(g,q);
 Bond0		=	Bond0v.L;
 AlInvS(s)$I0	=	IS0(s)/I0;
 AlGovS(s)$G0	=	GS0(s)/G0;
@@ -295,31 +282,31 @@ $GDXIN ALCONSC.gdx
 $LOAD ALCONSC
 DISPLAY ALCONSC;
 
-AlConS(s,g,q,e)	=	ALCONSC(s,g)/SUM(ss,ALCONSC(ss,g));
-ConS0(s,g,q,e)	=	AlConS(s,g,q,e)*Con0(g,q,e);
+AlConS(s,g,q)	=	ALCONSC(s,g)/SUM(ss,ALCONSC(ss,g));
+ConS0(s,g,q)	=	AlConS(s,g,q)*Con0(g,q);
 display AlConS;
 EQUATIONS
-    ConS0Eq1(g,q,e)
+    ConS0Eq1(g,q)
     ConS0Eq2(s)
     ObjConSEq
 ;
 
-ConS0Eq1(g,q,e)..
-    Con0(g,q,e)
+ConS0Eq1(g,q)..
+    Con0(g,q)
     =E=
-    SUM(s,ConS0v(s,g,q,e))
+    SUM(s,ConS0v(s,g,q))
     ;
 
 ConS0Eq2(s)..
     CS0(s)
     =E=
-    SUM((g,q,e),PopQE0(q,e,g)*ConS0v(s,g,q,e))
+    SUM((g,q),PopQ0(q,g)*ConS0v(s,g,q))
     ;
 
 ObjConSEq..
     OBJ
     =E=
-    SUM((s,g,q,e),SQR(ConS0v(s,g,q,e)-ConS0(s,g,q,e)))
+    SUM((s,g,q),SQR(ConS0v(s,g,q)-ConS0(s,g,q)))
     ;
 
 MODEL ModConS0 /
@@ -329,19 +316,19 @@ MODEL ModConS0 /
       /
 ;
 
-ConS0v.L(s,g,q,e)	=	ConS0(s,g,q,e);
-ConS0v.LO(s,g,q,e)	=	EPS;
-ConS0v.UP(s,g,q,e)	=	Con0(g,q,e);
+ConS0v.L(s,g,q)	=	ConS0(s,g,q);
+ConS0v.LO(s,g,q)	=	EPS;
+ConS0v.UP(s,g,q)	=	Con0(g,q);
 
 SOLVE ModConS0 MINIMIZING OBJ USING NLP;
 ABORT$(ModConS0.ModelStat GT 2)"Check Calibration: No Feasible Solution for ---> Model ModConS0";
 
-ConS0(s,g,q,e)	=	ConS0v.L(s,g,q,e);
-AlConS(s,g,q,e)	=	ConS0(s,g,q,e)/Con0(g,q,e);
-	TESTJG(g,q,e)	=	SUM((s),AlConS(s,g,q,e))-1;
+ConS0(s,g,q)	=	ConS0v.L(s,g,q);
+AlConS(s,g,q)	=	ConS0(s,g,q)/Con0(g,q);
+	TESTJG(g,q)	=	SUM((s),AlConS(s,g,q))-1;
 display TESTJG,AlConS;
-	LOOP((g,q,e),
-	ABORT$(ABS(TESTJG(G,Q,E)) GT 1.E-7) "ConS0(s,g): Shares do not sum to one";
+	LOOP((g,q),
+	ABORT$(ABS(TESTJG(G,Q)) GT 1.E-7) "ConS0(s,g): Shares do not sum to one";
 	);
 
 DISPLAY AlConS;

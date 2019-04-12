@@ -1,6 +1,5 @@
 * ========================================================
 * 7 Sectors
-* Imperfect Substitutability between Age groups
 * Simulation file
 * ========================================================
 
@@ -17,9 +16,9 @@ FlQual		Flag (1) for Qualification Shock
 
 * --- Choose Flags
 
-FlWalras	=	0;
-FlDemog1	= 	0;
-FlDemog2     	= 	0;
+FlWalras	=	1;
+FlDemog1	= 	1;
+FlDemog2     	= 	1;
 FlProdu     	= 	1;
 FlQual		=	0;
 
@@ -29,9 +28,14 @@ FlQual		=	0;
 
 EQUATIONS
     QEq(s,t)            Production Function
+    PQEq(s,t)
+    VAEq(s,t)
     KdemEq(s,t)         Capital Demand
     LdemEq(s,t)         Labor Demand
     XdemEq(s,t)		Input Demand
+    PVAEq(s,t)
+    PXEq(s,t)
+    XEq(ss,s,t)
     HBudgEq1(q,e,t,g)   HH Budget Constraint
     HBudgEq2(q,e,t,g)   HH Budget Constraint last generation
     BeqEq(q,e,t,g) 	Bequests
@@ -41,7 +45,7 @@ EQUATIONS
     LeisEq(q,e,t,g)	Intratemporal FOC
     MuEq(q,e,t,g)	Mu is only positive if not working (Kuhn-Tucker)
     VVEq(q,e,t,g)	Definition of V
-    LsupEq(e,q,g,t)       Labor Supply Balance
+    LsupEq(e,q,t)       Labor Supply Balance
     RintEq(t)           Balance of interest and rental rates
     PConEq(q,e,t,g)	FOC of Intratemporal (sectoral) consumption allocation
     ConSEq(q,e,s,t,g)	FOC of Intratemporal (sectoral) consumption allocation
@@ -49,8 +53,6 @@ EQUATIONS
     InvSEq(s,t)		FOC of Investment origin allocation
     WLdemEq(s,t)	FOC of qualification specific labor demand allocation
     LdemQEq(s,q,t)	FOC of qualification specific labor demand allocation
-    WAdemEq(s,q,t)	FOC of age specific labor demand allocation
-    AdemQEq(s,q,g,t)	FOC of age specific labor demand allocation
     XSdemEq(s,t)	FOC of Input allocation
     XdemSEq(s,ss,t)	FOC of Input allocation
     KStockEq(t)         Capital Stock Dynamics
@@ -61,59 +63,84 @@ EQUATIONS
     PGovEq(t)		FOC of Government Consumption Allocation
     GovSEq(s,t)		FOC of Government Consumption Allocation
     PEq(s,t)            Goods Market Equilibrium
-    WageEq(s,q,g,t)       Labor Market Equilibrium
-    WageEq2(s,q,g,t)
-    WageEq3(s,q,g,t)      
-    WageEq4(s,q,g,t)
-    WageEq5(s,q,g,t)
-    WageEq6(s,q,g,t)
-    WageEq7(s,q,g,t)
-    Wage2Eq1(s,q,g,t)
-    Wage2Eq2(s,q,g,t)
-    Wage2Eq3(s,q,g,t)
-    Wage2Eq4(s,q,g,t)
-    Wage2Eq5(s,q,g,t)
-    Wage2Eq6(s,q,g,t)
-    Wage2Eq7(s,q,g,t)
+    WageEq(s,q,t)       Labor Market Equilibrium
+    WageEq2(s,q,t)
+    WageEq3(s,q,t)      
+    WageEq4(s,q,t)
+    WageEq5(s,q,t)
+    WageEq6(s,q,t)
+    WageEq7(s,q,t)
+    Wage2Eq1(s,q,t)
+    Wage2Eq2(s,q,t)
+    Wage2Eq3(s,q,t)
+    Wage2Eq4(s,q,t)
+    Wage2Eq5(s,q,t)
+    Wage2Eq6(s,q,t)
+    Wage2Eq7(s,q,t)
     RentEq(t)           Capital Market Equilibrium
     AssetEq(t)          Asset Market Equilibrium
     GovGEq(t)		Government Spending Growth
 ;
 
 
+
 * Production Function (in logs)
 QEq(s,t)        $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LOG(Y(s,t))
+    P(s,t)
     =E=
-    LOG(A(s,t)) + AlK(s)*LOG(Kdem(s,t)) + AlX(s)*LOG(Xdem(s,t)) + (1-AlK(s)-AlX(s))*LOG(Ldem(s,t)) 
+    1 / A(s,t) * ((1 - AlX(s)) * PVA(s,t) ** (1 - sigX(s)) + AlX(s) * PX(s,t) ** (1 - sigX(s))) ** (1 / (1 - sigX(s)))
     ;
+
+VAEq(s,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    VA(s,t)
+    =E=
+    A(s,t) ** (sigX(s) - 1) * (1 - AlX(s)) * Y(s,t) * (P(s,t) / PVA(s,t)) ** sigX(s)
+    ;
+    
+XdemEq(s,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    Xdem(s,t)
+    =E=
+    A(s,t) ** (sigX(s) - 1) * AlX(s) * Y(s,t) * (P(s,t) / PX(s,t)) ** sigX(s)
+    ;
+
+PVAEq(s,t)  $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    PVA(s,t)
+    =E=
+    1 / AV(s,t) * ((Rent(t) / AlK(s)) ** AlK(s) * (W(s,t) / (1 - AlK(s)))** (1 - AlK(s)))
+    ; 
 
 * Capital Demand (FOC1)
 KdemEq(s,t)     $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LOG(Rent(t)) + LOG(Kdem(s,t))
     =E=
-    LOG(Alk(s)) + LOG(Y(s,t)) + LOG(P(s,t))
+    LOG(Alk(s)) + LOG(VA(s,t)) + LOG(PVA(s,t))
     ;
 
 * Labor Demand (FOC2)
 LdemEq(s,t)     $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     LOG(W(s,t)) + LOG(Ldem(s,t))
     =E=
-    LOG((1-AlK(s)-AlX(s))) + LOG(Y(s,t)) + LOG(P(s,t))
+    LOG((1-AlK(s))) + LOG(VA(s,t)) + LOG(PVA(s,t))
+    ;
+
+PXEq(s,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    PX(s,t)
+    =E=
+    SUM(ss,AlXS(ss,s) * P(ss,t))
     ;
 
 * Input Demand (FOC3)
-XdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LOG(PX(s,t)) + LOG(Xdem(s,t))
+XEq(ss,s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    Input(ss,s,t)
     =E=
-    LOG(AlX(s)) + LOG(Y(s,t)) + LOG(P(s,t))
+    AlXS(ss,s)*Xdem(s,t)
     ;
 
 * HH Budget Constraint
 HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
     PCon(q,e,t,g)*(1+CTxR(t))*Con(q,e,t,g) + B(q,e,t+1,g+1)
     =E=
-    ((1-WTxR(t))*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q))+
+    ((1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q))+
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,g))$(ORD(g) GT 1) +
     Inh(q,e,t,g) - Beq(q,e,t,g)
     ;
@@ -122,7 +149,7 @@ HBudgEq1(q,e,t+1,g+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp) + CARD(tm))..
 HBudgEq2(q,e,t,gl)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     PCon(q,e,t,gl)*(1+CTxR(t))*Con(q,e,t,gl)
     =E=
-    ((1-WTxR(t))*wageAE(e,q,gl,t)*Lab(q,gl,e,t)*EPQ(gl,q)) +
+    ((1-WTxR(t))*wageE(e,q,t)*Lab(q,e,t)*EPQ(gl,q)) +
     ((Rint(t)-KTxR(t)*(Rint(t)-1))*B(q,e,t,gl)) +
     Inh(q,e,t,gl) - Beq(q,e,t,gl)
     ;
@@ -198,41 +225,13 @@ LdemQEq(s,q,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)
     =E=
     AlDemQ(s,q)*(W(s,t)/wage(s,q,t))**sigLdem(s)*Ldem(s,t)
     ;
-
-* FOC of age specific labor demand allocation
-WAdemEq(s,q,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wage(s,q,t)**(1-sigAge(s))
-    =E=
-    SUM(g$(AlAge(s,q,g) GT 1.E-13), AlAge(s,q,g) * wageA(s,q,g,t)**(1-sigAge(s)))
-    ;
-
-* FOC of age specific labor demand allocation
-AdemQEq(s,q,g,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm) AND AlAge(s,q,g) GT 1.E-13)..
-    LQA(s,q,g,t)
-    =E=
-    AlAge(s,q,g)*(wage(s,q,t)/wageA(s,q,g,t))**sigAge(s)*LQ(s,q,t)
-    ;
     
-* FOC of sectoral inputs
-XSdemEq(s,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    PX(s,t)**(1-sigX(s))
-    =E=
-    SUM(ss, AlXS(ss,s) * P(ss,t)**(1-sigX(s)))
-    ;
-
-* FOC of sectoral inputs
-XdemSEq(s,ss,t)	$(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm)
-		AND AlXS(s,ss) GT 1.E-13)..
-    Input(ss,s,t)
-    =E=
-    AlXS(ss,s)*(PX(s,t)/P(ss,t))**sigX(s)*Xdem(s,t)
-    ;
 
 * Labor Supply Balance
-LsupEq(e,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE(e,q,g,t)
+LsupEq(e,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE(e,q,t)
     =E=
-    PopQE(q,e,t,g)*Lab(q,g,e,t)*EPQ(g,q)
+    (SUM(g, PopQE(q,e,t,g)*Lab(q,e,t)*EPQ(g,q)))
     ;
 
 * Balance of interest and rental rates
@@ -259,7 +258,7 @@ KstockEqSS(t)   $((ORD(t) EQ CARD(tp)+CARD(tm)))..
 * Government Budget Constraint 1
 GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
     PGov(t)*Bond(t+1)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
+      WTxR(t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g)))) 
     =E=
@@ -269,7 +268,7 @@ GBudgEq1(t+1)	$(ORD(t) GT CARD(tp) AND ORD(t) LT CARD(tp)+CARD(tm))..
 * Government Budget in Steady State
 GBudgEqSS(t)	$(ORD(t) EQ CARD(tp)+CARD(tm))..
     GPop(t)*PGov(t)*Bond(t)+(SUM((q,e,g),PopQE(q,e,t,g)*(
-      WTxR(t)*wageAE(e,q,g,t)*Lab(q,g,e,t)*EPQ(g,q)
+      WTxR(t)*wageE(e,q,t)*Lab(q,e,t)*EPQ(g,q)
     + CTxR(t)*PCon(q,e,t,g)*Con(q,e,t,g)
     + KTxR(t)*(Rint(t)-1)*B(q,e,t,g))))
     =E=
@@ -307,101 +306,101 @@ PEq(s,t)        $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
     ;
 
 * Labor market equilibrium
-WageEq(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE("e1",q,g,t)
+WageEq(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e1",q,t)
     =E=
-    LQA("s1",q,g,t)
+    LQ("s1",q,t)
     ;
 
 * Labor market equilibrium
-WageEq2(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE("e2",q,g,t)
+WageEq2(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e2",q,t)
     =E=
-    LQA("s2",q,g,t)
+    LQ("s2",q,t)
     ;
 
 * Labor market equilibrium
-WageEq3(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE("e3",q,g,t)
+WageEq3(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e3",q,t)
     =E=
-    LQA("s3",q,g,t)
+    LQ("s3",q,t)
     ;
 
 * Labor market equilibrium
-WageEq4(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE("e4",q,g,t)
+WageEq4(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e4",q,t)
     =E=
-    LQA("s4",q,g,t)
+    LQ("s4",q,t)
     ;
 
 * Labor market equilibrium
-WageEq5(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE("e5",q,g,t)
+WageEq5(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e5",q,t)
     =E=
-    LQA("s5",q,g,t)
+    LQ("s5",q,t)
     ;
 
 * Labor market equilibrium
-WageEq6(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE("e6",q,g,t)
+WageEq6(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e6",q,t)
     =E=
-    LQA("s6",q,g,t)
+    LQ("s6",q,t)
     ;
 
 * Labor market equilibrium
-WageEq7(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    LsupQE("e7",q,g,t)
+WageEq7(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    LsupQE("e7",q,t)
     =E=
-    LQA("s7",q,g,t)
+    LQ("s7",q,t)
     ;
 
 * Labor market equilibrium
-Wage2Eq1(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wageAE("e1",q,g,t)
+Wage2Eq1(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e1",q,t)
     =E=
-    wageA("s1",q,g,t)
+    wage("s1",q,t)
     ;
 
 * Labor market equilibrium
-Wage2Eq2(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wageAE("e2",q,g,t)
+Wage2Eq2(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e2",q,t)
     =E=
-    wageA("s2",q,g,t)
+    wage("s2",q,t)
     ;
 
 * Labor market equilibrium
-Wage2Eq3(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wageAE("e3",q,g,t)
+Wage2Eq3(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e3",q,t)
     =E=
-    wageA("s3",q,g,t)
+    wage("s3",q,t)
     ;
     
 * Labor market equilibrium
-Wage2Eq4(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wageAE("e4",q,g,t)
+Wage2Eq4(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e4",q,t)
     =E=
-    wageA("s4",q,g,t)
+    wage("s4",q,t)
     ;
 
 * Labor market equilibrium
-Wage2Eq5(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wageAE("e5",q,g,t)
+Wage2Eq5(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e5",q,t)
     =E=
-    wageA("s5",q,g,t)
+    wage("s5",q,t)
     ;
 
 * Labor market equilibrium
-Wage2Eq6(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wageAE("e6",q,g,t)
+Wage2Eq6(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e6",q,t)
     =E=
-    wageA("s6",q,g,t)
+    wage("s6",q,t)
     ;
 
 * Labor market equilibrium
-Wage2Eq7(s,q,g,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
-    wageAE("e7",q,g,t)
+Wage2Eq7(s,q,t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
+    wageE("e7",q,t)
     =E=
-    wageA("s7",q,g,t)
+    wage("s7",q,t)
     ;
         
 * Capital Market Equilibrium
@@ -423,7 +422,11 @@ RentEq(t)       $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+CARD(tm))..
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 MODEL OLG /
-      QEq
+      QEq    
+      VAEq
+      PVAEq
+      PXEq
+      XEq
       KdemEq
       LdemEq
       XdemEq
@@ -440,8 +443,6 @@ MODEL OLG /
       InvSEq
       WLdemEq
       LdemQEq
-      WAdemEq
-      AdemQEq
       RintEq
       KstockEq
       KstockEqSS
@@ -450,8 +451,6 @@ MODEL OLG /
       GBudgEqSS
       PGovEq	
       GovSEq
-      XSdemEq
-      XdemSEq
       PEq
       WageEq
       WageEq2
@@ -506,15 +505,13 @@ LOOP(t $(ORD(t) GT CARD(tp)),
 
 * Parameters
 A(s,t)          =       A0(s);
+AV(s,t) 	=	AV0(s); 
 rho		=       rho0;
-Lab(q,g,e,t)    =       Lab0(q,g,e);
+Lab(q,e,t)      =       Lab0(q,e);
 CTxR(t)		=	CTxR0;
 KTxR(t)		=	KTxR0;
 
 
-*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-* Initial Values and Bounds
-*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 $INCLUDE bounds.gms
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -531,7 +528,7 @@ OPTION NLP=CONOPT;
 SOLVE OLG MAXIMIZING OBJ USING NLP;
 
 EXECUTE_UNLOAD 'results_base.gdx'
-* EXECUTE '=gdx2xls results_base.gdx'
+*EXECUTE '=gdx2xls results_base.gdx'
 ;
 
 
@@ -541,7 +538,7 @@ EXECUTE_UNLOAD 'results_base.gdx'
 
 * 1) Transitory increase in birth rate
 
-$ontext
+
 
 IF(FlDemog1 EQ 1,
 NN(q,e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+6))
@@ -629,7 +626,6 @@ EXECUTE_UNLOAD 'results_dem2.gdx'
 );
 
 $INCLUDE bounds.gms
-
 NN(q,e,t)                           	=      	1;
 PopQE(q,e,t,g) $(ORD(t) EQ CARD(g))  	=	PopQE0(q,e,g);
 
@@ -653,12 +649,12 @@ LOOP(t $(ORD(t) GT CARD(tp)),
 
 OPTION NLP=CONOPT;
 SOLVE OLG MAXIMIZING OBJ USING NLP;
-$offtext
+
 
 
 * Prductivity Shock
 IF(FlProdu EQ 1,
-    A("s1",t)	$(ORD(t) GT CARD(tp)+1) = 1.01*A("s1",t);
+    A("s1",t)	$(ORD(t) GT CARD(tp)+1 AND ORD(t) LE CARD(tp)+6) = 1.01*A("s1",t);
 
     SOLVE OLG USING NLP MINIMIZING OBJ;       
 
@@ -668,3 +664,31 @@ IF(FlProdu EQ 1,
 
 );
 
+
+* Increase in the share of High Skill Workers
+IF(FlQual EQ 1,
+
+NN("q1",e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+4))
+                                =       1.02*NN("q1",e,t);
+NN("q2",e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+4))
+                                =       0.98*NN("q2",e,t);				
+
+LOOP(t $(ORD(t) GT CARD(tp)),
+    PopQE(q,e,t+1,gf)           =       NN(q,e,t)*PopQE(q,e,t,gf)
+);
+
+LOOP(t,
+    PopQE(q,e,t+1,g+1)          =       PopQE(q,e,t,g)
+);
+
+TPop(t) $(ORD(t) LE CARD(t))    =       SUM((q,g,e),PopQE(q,e,t,g));
+
+LOOP(t $(ORD(t) LE CARD(t)),
+    GPop(t)                     =       TPop(t+1)/TPop(t) )
+;
+OPTION NLP=CONOPT;
+SOLVE OLG MAXIMIZING OBJ USING NLP;
+
+EXECUTE_UNLOAD 'results_qual.gdx'
+EXECUTE '=gdx2xls results_qual.gdx'
+);

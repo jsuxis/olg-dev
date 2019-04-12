@@ -16,8 +16,8 @@ FlEndo		Flag (0) Exogenous (1) Endogenous Labor Supply
 
 
 * Model Parameters
-SigInter	= 6;
-SigIntra	= 3;
+SigInter	= 2;
+SigIntra	= 6;
 sigCon(g)	= 2.5;
 sigInv		= 3;
 sigLdem(s)	= 1.5;
@@ -28,7 +28,7 @@ Rint0   	= 1.40;
 IF(CARD(g) EQ 4,
 	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
 	EP(gr)  = 0;
-	delta   = 0.2;
+	delta   = 0.3;
     );
 
 Leis0(gf,q,e)	= 0.35;
@@ -72,11 +72,12 @@ Lsup0		= SUM((e,q),LsupEQ0(e,q));
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Y0(s)		= YK0(s) + Ldem0(s) + X0(s);
+VA0(s)		= YK0(s) + Ldem0(s);
 I0		= SUM(s,IS0(s));
 K0              = I0 / (delta + GPop0 - 1);
-AlK(s)$Y0(s)    = YK0(s) / Y0(s);
+AlK(s)$Y0(s)    = YK0(s) / VA0(s);
 AlX(s)$Y0(s)	= X0(s) / Y0(s);
-Ldem0(s)	= (1-AlK(s)-AlX(s))*Y0(s);
+Ldem0(s)	= (1-AlK(s))*VA0(s);
 C0		= SUM(s, CS0(s));
 Con0(g,q,e)	= C0 / SUM(gg,Pop0(gg));
 DIFFC0		= C0 - SUM((g,q,e),PopQE0(q,e,g)*Con0(g,q,e));
@@ -254,13 +255,15 @@ Rent0           =       Rent0v.L;
 Rint0           =       Rint0v.L;
 Kdem0(s)        =       YK0(s)/Rent0;
 Ksc0            =       SUM(s,Kdem0(s))/K0;
-A0(s)           =       Y0(s) / (Kdem0(s)**AlK(s) * X0(s)**AlX(s) * Ldem0(s)**(1-AlK(s)-AlX(s)));
+A0(s) 		=	Y0(s) / (((1 - AlX(s)) * VA0(s) ** (1 - 1 / sigX(s))
+			+ AlX(s) * X0(s) ** (1 - 1 / sigX(s))) ** (sigX(s) / (sigX(s) - 1)));
+AV0(s)          =       VA0(s) / (Kdem0(s)**AlK(s) * Ldem0(s)**(1-AlK(s)));
 Gamma(g,q,e)	=	Gammav.L(g,q,e);
 VV0(g,q,e)	=	VV0v.L(g,q,e);
 Bond0		=	Bond0v.L;
 AlInvS(s)$I0	=	IS0(s)/I0;
 AlGovS(s)$G0	=	GS0(s)/G0;
-AlXS(s,ss)	=	Input0(s,ss)/X0(ss);
+AlXS(s,ss)	=	Input0(s,ss)/(Y0(ss)*AlX(ss));
 	TESTJ		=	SUM(s,AlInvS(s))-1;
 	ABORT$(ABS(TESTJ) GT 1.E-7) "InvS(s): shares do not sum to one";
 	
@@ -350,4 +353,4 @@ DISPLAY AlConS;
 
 EXECUTE_UNLOAD 'calibration.gdx';
 
-*EXECUTE '=gdx2xls calibration.gdx';
+EXECUTE '=gdx2xls calibration.gdx';

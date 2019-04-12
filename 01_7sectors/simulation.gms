@@ -17,8 +17,8 @@ FlQual		Flag (1) for Qualification Shock
 * --- Choose Flags
 
 FlWalras	=	0;
-FlDemog1	= 	1;
-FlDemog2     	= 	1;
+FlDemog1	= 	0;
+FlDemog2     	= 	0;
 FlProdu     	= 	1;
 FlQual		=	0;
 
@@ -576,7 +576,7 @@ LOOP(t $(ORD(t) GT CARD(tp)),
 OPTION NLP=CONOPT;
 SOLVE OLG MAXIMIZING OBJ USING NLP;
 
-
+$ontext
 IF(FlDemog2 EQ 1,
 * 1) Baby Boom and Baby Bust
 NN(q,e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE CARD(tp)+3)    = 1.02*NN(q,e,t);
@@ -632,10 +632,10 @@ OPTION NLP=CONOPT;
 SOLVE OLG MAXIMIZING OBJ USING NLP;
 
 
-
+$offtext
 * Prductivity Shock
 IF(FlProdu EQ 1,
-    A("s1",t)	$(ORD(t) GT CARD(tp)+1 AND ORD(t) LE CARD(tp)+6) = 1.01*A("s1",t);
+    A("s1",t)	$(ORD(t) GT CARD(tp)+1) = 1.01*A("s1",t);
 
     SOLVE OLG USING NLP MINIMIZING OBJ;       
 
@@ -645,31 +645,3 @@ IF(FlProdu EQ 1,
 
 );
 
-
-* Increase in the share of High Skill Workers
-IF(FlQual EQ 1,
-
-NN("q1",e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+4))
-                                =       1.02*NN("q1",e,t);
-NN("q2",e,t) $(ORD(t) GT CARD(tp) AND ORD(t) LE (CARD(tp)+4))
-                                =       0.98*NN("q2",e,t);				
-
-LOOP(t $(ORD(t) GT CARD(tp)),
-    PopQE(q,e,t+1,gf)           =       NN(q,e,t)*PopQE(q,e,t,gf)
-);
-
-LOOP(t,
-    PopQE(q,e,t+1,g+1)          =       PopQE(q,e,t,g)
-);
-
-TPop(t) $(ORD(t) LE CARD(t))    =       SUM((q,g,e),PopQE(q,e,t,g));
-
-LOOP(t $(ORD(t) LE CARD(t)),
-    GPop(t)                     =       TPop(t+1)/TPop(t) )
-;
-OPTION NLP=CONOPT;
-SOLVE OLG MAXIMIZING OBJ USING NLP;
-
-EXECUTE_UNLOAD 'results_qual.gdx'
-EXECUTE '=gdx2xls results_qual.gdx'
-);

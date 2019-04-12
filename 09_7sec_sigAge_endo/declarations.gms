@@ -72,8 +72,6 @@ PARAMETER
     CTxR0		Initial Consumption Tax Rate
     WTxR0		Initial Income Tax Rate
     KTxR0		Initial Capital Tax Rate
-    Export(s)		Exports
-    Import(s)		Imports
 ;
 
 * Parameters for Calibration
@@ -81,12 +79,12 @@ PARAMETER
     A0(s)       	Initial Scaling Factor
     AlK(s)      	Capital Share (alpha)
     AlX(s)		Input Share
-    AlEx(s)		Export Share
     X0(s)		Total Input
     sigma       	Sigma (Intertemporal Elasticity of Substitution)
     sigCon(g)		Elasticity of Substitution between consumption goods
     SigInter		Intertemporal Elasticity of Substitution
     SigIntra		Intratemporal Elasticity of Substitution
+    sigAge(s)
     AlConS(s,g,q,e)	Share parameter for consumption
     AlConSC(s,g) 	Share of spending by sectors and generation
     eta0(s,q)		Initial Sector affinity
@@ -101,13 +99,13 @@ PARAMETER
     InhR(g)     	Inheritance Rate
     EP(g)       	Earnings Profile (base)
     EPQ(g,q)		Earnings Profile for each qualification
-    Leis0(g,q,e)		Initial Leisure
-    LeisS0(g,q,s)		Initial Leisure
-    Lab0(q,e)        	Initial Physical (non-effective) Labor Supply (hours)
-    LabS0(q,s)		Sectoral Initial Physical (non-effective) Labor Supply (hours)
+    Leis0(g,q,e)	Initial Leisure
+    LeisS0(g,q,s)	Initial Leisure
+    Lab0(q,g,e)        	Initial Physical (non-effective) Labor Supply (hours)
+    LabS0(q,s,g)	Sectoral Initial Physical (non-effective) Labor Supply (hours)
     Lsup0       	Initial Labor Supply
     LsupQ0(q)		Initial Labor Supply by qualification
-    LsupEQ0(e,q) 	Initial Labor Supply by qualification and sector
+    LsupEQ0(e,q,g) 	Initial Labor Supply by qualification and sector
     delta       	Depreciation Rate
     K0          	Initial Capital Stock
     Rent0       	Initial Rental Rate of Capital
@@ -132,7 +130,6 @@ PARAMETER
     TESTJ		Test Parameter
     TESTJG(g,q,e)	Test Parameter
     TESTDEM(s)		Test Parameter
-    VA0(s)		Initial Value Added
 ;
 
 * Skipped Parameters: Z0, PopGR0
@@ -168,7 +165,7 @@ PARAMETER
     TPop(t)             Total Population
     Pop(t,g)            Population by Generation
     PopQE(q,e,t,g)	Household size by Generation
-    Lab(q,e,t)        	Physical (non-effective) Labor Supply (hours)
+    Lab(q,g,e,t)        Physical (non-effective) Labor Supply (hours)
     rho			Discount Rate
     rhoGen(t,g)         Generation Specific Discount Rate
     RkG(g)              ???
@@ -181,7 +178,6 @@ PARAMETER
     KTxR(t)		Capital Tax Rate (interest income)
     Gov(t)		Government Spending
     SigGov		Government Spending Elasticity
-    sigVA(s)		Elasticity for VA
 ;
 
 RkG(g)  =       ORD(g);
@@ -189,8 +185,6 @@ RkG(g)  =       ORD(g);
 * Variables for Simulation
 VARIABLE
     Y(s,t)      	Output
-    VA(s,t)		Value Added
-    PVA(s,t)		Price of Value Added
     P(s,t)		Price of Consumption goods
     Kdem(s,t)   	Capital Demand
     Ldem(s,t)   	Labor Demand
@@ -207,7 +201,7 @@ VARIABLE
     Leis(q,e,t,g)	Leisure
     VV(q,e,t,g)		V
     mu(q,e,t,g)		Mu
-    LsupQE(e,q,t)    	Labor Supply by sector and qualification
+    LsupQE(e,q,g,t)    	Labor Supply by sector and qualification
     I(t)        	Investments
     PI(t)		Price of Investment Good
     IS(s,t)		Investment using goods produced by sector s

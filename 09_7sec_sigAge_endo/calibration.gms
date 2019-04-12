@@ -1,5 +1,6 @@
 * ======================================================
 * 7 Sectors
+* Imperfect Substitutability between Age groups
 * Calibration file
 * ======================================================
 
@@ -9,31 +10,17 @@ $INCLUDE data.gms
 * Initializing
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-* Flag for Endogenous Labor Supply
-PARAMETER
-FlEndo		Flag (0) Exogenous (1) Endogenous Labor Supply
-;
+* Exogenous Parameters:
+$include "C:\Users\Manu\Documents\olg\productivity_shocks\parameters.gms"
 
+Rint0   	= 1.4;
 
-* Model Parameters
-SigInter	= 6;
-SigIntra	= 3;
-sigCon(g)	= 2.5;
-sigInv		= 3;
-sigLdem(s)	= 1.5;
-SigGov		= 2.5;
-sigX(s)		= 2.5;
-Rint0   	= 1.40;
-
-IF(CARD(g) EQ 4,
-	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
-	EP(gr)  = 0;
-	delta   = 0.2;
-    );
-
+* Leisure Parameters
 Leis0(gf,q,e)	= 0.35;
-Leis0("g2",q,e)	= 0.20;
-Leis0("g3",q,e)	= 0.90;
+Leis0("g2",q,e)	= 0.25;
+Leis0("g3",q,e)	= 0.30;
+Leis0("g4",q,e) = 0.85;
+
 LeisS0(g,q,"s1")=Leis0(g,q,"e1");
 LeisS0(g,q,"s2")=Leis0(g,q,"e2");
 LeisS0(g,q,"s3")=Leis0(g,q,"e3");
@@ -45,26 +32,26 @@ LeisS0(g,q,"s7")=Leis0(g,q,"e7");
 * Specifying Earnings Profiles for each qualification 
 EPQ(g,"q1")	= EP(g)*1.2;
 EPQ(g,"q2")	= EP(g)*0.8;
+
 DISPLAY EPQ;
+DISPLAY LeisS0;
 
-LabS0(q,s)   =	(LQ0(s,q) / SUM(g,PopQS0(q,s,g)*EPQ(g,q)));
+LabS0(q,s,g)  	= LQA0(s,q,g) / (PopQS0(q,s,g)*EPQ(g,q) * (1 - LeisS0(g,q,s)));
 
-Lab0(q,"e1")	= LabS0(q,"s1");
-Lab0(q,"e2")	= LabS0(q,"s2");
-Lab0(q,"e3")	= LabS0(q,"s3");
-Lab0(q,"e4")	= LabS0(q,"s4");
-Lab0(q,"e5")	= LabS0(q,"s5");
-Lab0(q,"e6")	= LabS0(q,"s6");
-Lab0(q,"e7")	= LabS0(q,"s7");
+Lab0(q,g,"e1")	= LabS0(q,"s1",g);
+Lab0(q,g,"e2")	= LabS0(q,"s2",g);
+Lab0(q,g,"e3")	= LabS0(q,"s3",g);
+Lab0(q,g,"e4")	= LabS0(q,"s4",g);
+Lab0(q,g,"e5")	= LabS0(q,"s5",g);
+Lab0(q,g,"e6")	= LabS0(q,"s6",g);
+Lab0(q,g,"e7")	= LabS0(q,"s7",g);
 DISPLAY Lab0;
 
-BeqR(g) 	= 0;
-InhR(g) 	= 0;
-rho0    	= 0.80;
+rho0    	= 0.70;
 AlDemQ(s,q)	= LQ0(s,q)/Ldem0(s);
-LsupEQ0(e,q) = 	(SUM(g, PopQE0(q,e,g)*Lab0(q,e)*EPQ(g,q)));
-;
-Lsup0		= SUM((e,q),LsupEQ0(e,q));
+AlAge(s,q,g)	= LQA0(s,q,g)/LQ0(s,q);
+LsupEQ0(e,q,g) 	= PopQE0(q,e,g)*Lab0(q,g,e)*EPQ(g,q) *(1-Leis0(g,q,e));
+Lsup0		= SUM((e,q,g),LsupEQ0(e,q,g));
 
 
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -107,7 +94,7 @@ EQUATIONS
 HBudg0Eq1(g+1,q,e)..
     (1+CTxR0)*Con0v(g,q,e) + B0v(g+1,q,e)
     =E=
-    ((1-WTxR0)*Lab0(q,e)*EPQ(g,q)) +
+    ((1-WTxR0)*Lab0(q,g,e)*EPQ(g,q) * (1 - Leis0(g,q,e))) +
     ((Rint0v-KTxR0*(Rint0v-1))*B0v(g,q,e))$(ORD(g) GT 1)
     + Inh0v(g,q,e) - Beq0v(g,q,e)
     ;
@@ -116,9 +103,16 @@ HBudg0Eq1(g+1,q,e)..
 HBudg0Eq2(gl,q,e)..
     (1+CTxR0)*Con0v(gl,q,e)
     =E=
-    (1-WTxR0)*Lab0(q,e)*EPQ(gl,q) +
+    (1-WTxR0)*Lab0(q,gl,e)*EPQ(gl,q) * (1 - Leis0(gl,q,e))+
     (Rint0v-KTxR0*(Rint0v-1))*B0v(gl,q,e) +
     Inh0v(gl,q,e) - Beq0v(gl,q,e)
+    ;
+
+* Consumption intensity parameter calibration
+GammaEq(g,q,e)..
+    Gammav(g,q,e)
+    =E=
+    ((1-WTxR0)*Lab0(q,g,e)*EPQ(g,q)) * ((Leis0(g,q,e)/Con0v(g,q,e))**(1/SigIntra))
     ;
 
 * Bequests
@@ -139,7 +133,16 @@ Inh0Eq(gw,q,e)..
 Con0Eq(g+1,q,e)..
     Con0v(g+1,q,e)/Con0v(g,q,e)
     =E=
-    ((Rint0v-KTxR0*(Rint0v-1))/rho0v)**SigInter 
+    ((Rint0v-KTxR0*(Rint0v-1))/rho0v)**SigInter *
+    (VV0v(g+1,q,e)/VV0v(g,q,e))
+    ;
+
+* Definition of V
+VV0vEq(g,q,e)..
+    VV0v(g,q,e)
+    =E=
+    (1+ (gammav(g,q,e)**SigIntra) * (((1-WTxR0)*Lab0(q,g,e)*EPQ(g,q))**(1-SigIntra)))
+    **((SigIntra-SigInter)/(1-SigIntra))
     ;
 
 * Aggregate Consumption
@@ -166,7 +169,7 @@ Asset0Eq..
 * Government Budget Balance
 GBudg0Eq..
     Gpop0*Bond0v +
-    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,e)*EPQ(g,q)+
+    (SUM((g,q,e),PopQE0(q,e,g)*(WTxR0*Lab0(q,g,e)*EPQ(g,q) * (1 - Leis0(g,q,e))+
     CTxR0*Con0v(g,q,e)+KTxR0*(Rint0v-1)*B0v(g,q,e))))
     =E=
     G0 + Rint0v*Bond0v
@@ -186,8 +189,10 @@ ObjEq..
 MODEL OLG0 /
       HBudg0Eq1
       HBudg0Eq2
+      GammaEq
       Beq0Eq
       Inh0Eq
+      VV0vEq
       Con0Eq
       C0Eq
       Rint0vEq
@@ -208,12 +213,12 @@ OLG0.HOLDFIXED=1;
 B0v.L(g,q,e)    =       K0/SUM(gg$(ORD(gg) GT 1), Pop0(gg));
 B0v.FX(gf,q,e)  =       0;
 Rint0v.L        =       Rint0;
-Rint0v.LO       =       0.75;
+Rint0v.LO       =       0.2;
 Rint0v.UP       =       2.5;
 Rent0v.L        =       Rint0v.L-(1-delta);
-Rent0v.LO       =       0.01;
+Rent0v.LO       =       0.0001;
 rho0v.L         =       rho0;
-rho0v.LO        =       0.5*rho0v.L;
+rho0v.LO        =       0.1*rho0v.L;
 rho0v.UP        =       2.5;
 Con0v.L(g,q,e)  =       Con0(g,q,e);
 Con0v.LO(g,q,e)	=	0.01;
@@ -350,4 +355,4 @@ DISPLAY AlConS;
 
 EXECUTE_UNLOAD 'calibration.gdx';
 
-*EXECUTE '=gdx2xls calibration.gdx';
+EXECUTE '=gdx2xls calibration.gdx';

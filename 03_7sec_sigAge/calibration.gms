@@ -17,20 +17,20 @@ FlEndo		Flag (0) Exogenous (1) Endogenous Labor Supply
 
 
 * Model Parameters
-SigInter	= 5.06;
-SigIntra	= 6;
+SigInter	= 1;
+SigIntra	= 3;
 sigCon(g)	= 2.5;
 sigInv		= 3;
 sigLdem(s)	= 1.5;
 SigGov		= 2.5;
 sigX(s)		= 2.5;
-sigAge(s)	= 3;
+sigAge(s)	= 2.5;
 Rint0   	= 1.4;
 
 IF(CARD(g) EQ 4,
 	EP(g)   = 1 + 0.35*ORD(g) - 0.09*(ORD(g)**2);	
 	EP(gr)  = 0;
-	delta   = 0.3;
+	delta   = 0.2;
     );
 
 Leis0(gf,q,e)	= 0.35;
